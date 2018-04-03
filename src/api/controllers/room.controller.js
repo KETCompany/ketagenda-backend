@@ -1,46 +1,21 @@
-const Room = require('../models/room.model');
+const { Room } = require('../models/room.model');
+const RoomBusiness = require('../business/room.business');
 
 
 const list = (req, res) => {
-  const { query } = req;
-
-  const mongoQuery = {};
-
-  if (query.location) {
-    mongoQuery.location = {
-      $regex: new RegExp(query.location, 'i'),
-    };
+  if (req.query.filters !== undefined && req.query.filters !== null) {
+    return RoomBusiness.getFilters(req.query)
+      .then((filters) => {
+        res.send({ ...filters });
+      });
   }
 
-  if (query.name) {
-    mongoQuery.name = {
-      $regex: new RegExp(query.name, 'i'),
-    };
-  }
-
-  if (query.floor) {
-    const floor = Number(query.floor);
-    if (!Number.isNaN(floor)) {
-      mongoQuery.floor = floor;
-    }
-  }
-
-  if (query.type) {
-    mongoQuery.type = {
-      $regex: new RegExp(query.type, 'i'),
-    };
-  }
-
-  if (query.number) {
-    const number = Number(query.number);
-    if (!Number.isNaN(number)) {
-      mongoQuery.number = number;
-    }
-  }
-
-  Room.find(mongoQuery).then((rooms) => {
-    res.send(rooms);
-  });
+  return RoomBusiness.list(req.query)
+    .then(rooms => res.send(rooms))
+    .catch((err) => {
+      // TODO error handling
+      console.log(err);
+    });
 };
 
 const get = (req, res) => {
@@ -49,6 +24,10 @@ const get = (req, res) => {
   Room.find({ _id: id })
     .then((room) => {
       res.send(room);
+    })
+    .catch((err) => {
+      // TODO ERROR HANDLING
+      console.error(err);
     });
 };
 

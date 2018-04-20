@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const _ = require('lodash');
+const moment = require('moment');
 
 const { Schema } = mongoose;
 
@@ -49,7 +50,12 @@ const getSearchValues = (query) => {
       }
     }
 
-    return { ...searchValues, ..._.pick(query, 'type', 'name', 'withLectures') };
+    if (query.time) {
+      searchValues.time = moment.unix(query.time).format();
+    }
+
+
+    return { ...searchValues, ..._.pick(query, 'type', 'name', 'withLectures', 'class', 'tutor') };
   }
   return {};
 };
@@ -98,8 +104,58 @@ const mongoQueryBuilder = (searchValues) => {
     mongoQuery.$and = $and;
   }
 
+  if (searchValues.class) {
+    mongoQuery.booked = {
+      $elemMatch: {
+        class: {
+          $regex: new RegExp(searchValues.class, 'i'),
+        },
+      },
+    };
+  }
+
+  if (searchValues.tutor) {
+    mongoQuery.booked = {
+      $elemMatch: {
+        tutor: {
+          $regex: new RegExp(searchValues.tutor, 'i'),
+        },
+      },
+    };
+  }
+
+  if (searchValues.time) {
+    mongoQuery.booked = {
+      $elemMatch: {
+        start: { $lte: searchValues.time },
+        end: { $gte: searchValues.time },
+      },
+    };
+  }
+
   return mongoQuery;
 };
 
+const mongoProjectionBuilder = (query) => {
+  const projections = {};
 
-module.exports = { Room, getSearchValues, mongoQueryBuilder };
+  if (query.time || query.class || query.tutor) {
+    return { 'booked.$': 1, '': 1 };
+  }
+
+  if (query.onlyNames !== undefined) {
+    projections.name = 1;
+    return projections;
+  }
+
+  if (query.withBookings === undefined) {
+    projections.booked = 0;
+  }
+  projections.value = 0;
+
+  return projections;
+};
+
+module.exports = {
+  Room, getSearchValues, mongoQueryBuilder, mongoProjectionBuilder,
+};

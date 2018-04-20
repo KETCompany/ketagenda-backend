@@ -1,5 +1,6 @@
-const { Room, mongoQueryBuilder, getSearchValues } = require('../models/room.model');
-const _ = require('lodash');
+const {
+  Room, mongoQueryBuilder, getSearchValues, mongoProjectionBuilder,
+} = require('../models/room.model');
 
 const getFilters = (query) => {
   const searchValues = getSearchValues(query);
@@ -11,10 +12,12 @@ const getFilters = (query) => {
     const filterLocations = locations
       .map(val => val.toUpperCase())
       .filter((val, i) => locations.indexOf(val) === i);
+    const filterTypes = types
+      .filter(type => !(/^\w{1,2}\./g).test(type));
     return {
       floors,
       locations: filterLocations,
-      types,
+      types: filterTypes,
     };
   }).catch((err) => {
     // TODO error handling
@@ -22,10 +25,19 @@ const getFilters = (query) => {
   });
 };
 
+const getNames = (query) => {
+  const searchValues = getSearchValues(query);
+  return Room.distinct('name', mongoQueryBuilder(searchValues))
+    .catch((err) => {
+      // TODO error handling
+      console.error(err);
+    });
+};
+
 const list = query =>
   Room.find(
     mongoQueryBuilder(getSearchValues(query)),
-    query.withBookings === undefined ? { booked: 0 } : {},
+    mongoProjectionBuilder(query),
   )
     .collation({ locale: 'en', strength: 2 })
     .catch((err) => {
@@ -37,4 +49,5 @@ const list = query =>
 module.exports = {
   getFilters,
   list,
+  getNames,
 };

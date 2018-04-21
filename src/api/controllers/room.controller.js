@@ -3,14 +3,22 @@ const RoomBusiness = require('../business/room.business');
 
 
 const list = (req, res) => {
-  if (req.query.filters !== undefined && req.query.filters !== null) {
-    return RoomBusiness.getFilters(req.query)
+  const { query } = req;
+  if (query.filters !== undefined && query.filters !== null) {
+    return RoomBusiness.getFilters(query)
       .then((filters) => {
         res.send({ ...filters });
       });
   }
 
-  return RoomBusiness.list(req.query)
+  if (query.names !== undefined && query.names !== null) {
+    return RoomBusiness.getNames(query)
+      .then((names) => {
+        res.send({ names });
+      });
+  }
+
+  return RoomBusiness.list(query)
     .then(rooms => res.send(rooms))
     .catch((err) => {
       // TODO error handling

@@ -1,6 +1,6 @@
 const { Room } = require('../models/room.model');
 const RoomBusiness = require('../business/room.business');
-
+const socket = require('../../config/socket');
 
 const list = (req, res) => {
   const { query } = req;
@@ -34,12 +34,35 @@ const get = (req, res) => {
       res.send(room);
     })
     .catch((err) => {
-      // TODO ERROR HANDLING
       console.error(err);
     });
+};
+
+const getByInfoScreen = (req, res) => {
+  const { key } = req.params;
+
+  Room.find({ infoScreenKeys: key })
+    .then((room) => {
+      res.send(room);
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+};
+
+const post = (req, res) => {
+  socket.sendMessage('9fmFHDbmWyzlsRrt2lEyNSgKQJ3NibqK');
+  
+  //.sendMessage('9fmFHDbmWyzlsRrt2lEyNSgKQJ3NibqK');
+  // RoomBusiness.createReservation(req.body).then(console.log).catch((err) => {
+  //   console.log(err);
+  // });
+  res.sendStatus(202);
 };
 
 module.exports = {
   list,
   get,
+  post,
+  getByInfoScreen,
 };

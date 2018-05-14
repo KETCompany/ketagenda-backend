@@ -29,8 +29,8 @@
   },
   "scripts": {
     "test": "mocha",
-    "start": "node server.js",
-    "debug": "nodemon --inspect server.js"
+    "start": "nodemon server.js",
+    "debug": "nodemon --inspect --debug server.js"
   },
   "keywords": [],
   "author": "",

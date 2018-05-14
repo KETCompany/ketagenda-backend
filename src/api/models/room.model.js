@@ -4,6 +4,26 @@ const moment = require('moment');
 
 const { Schema } = mongoose;
 
+const bookingSchema = new Schema({
+  group: String,
+  name: String,
+  tutor: String,
+  dates: [
+    {
+      start: {
+        type: Date,
+        min: moment(),
+        required: true,
+      },
+      end: {
+        type: Date,
+        min: moment(),
+        required: true,
+      }
+    }
+  ]
+});
+
 const roomSchema = new Schema({
   number: Number,
   department: String,
@@ -12,9 +32,19 @@ const roomSchema = new Schema({
   description: String,
   value: Number,
   name: String,
+  bookings: [bookingSchema],
+}, {
+  strict: 'throw',
+  useNestedStrict: true,
 });
 
-const Room = mongoose.model('Room', roomSchema);
+// bookingSchema.path('start').validate((value) => {
+//   console.log(value);
+//   return value.length > 5;
+// }, 'my error type');
+
+const Room = mongoose.model('rooms', roomSchema);
+const Booking = mongoose.model('booked', bookingSchema);
 
 const getSearchValues = (query) => {
   if (query) {
@@ -157,5 +187,9 @@ const mongoProjectionBuilder = (query) => {
 };
 
 module.exports = {
-  Room, getSearchValues, mongoQueryBuilder, mongoProjectionBuilder,
+  Room,
+  Booking,
+  getSearchValues,
+  mongoQueryBuilder,
+  mongoProjectionBuilder,
 };

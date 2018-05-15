@@ -1,14 +1,15 @@
 const mongoose = require('mongoose');
+const config = require('./config');
 
 mongoose.Promise = Promise;
 
-const mongoUri = process.env.MONGO_HOST;
+const { host } = config.mongo;
 
 mongoose.connection.on('error', () => {
-  throw new Error(`unable to connect to database: ${mongoUri}`);
+  throw new Error(`unable to connect to database: ${host}`);
 });
 
-exports.connect = () => mongoose.connect(mongoUri, {
+exports.connect = () => mongoose.connect(host, {
   keepAlive: 1,
 }).connection;
 

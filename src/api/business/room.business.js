@@ -1,53 +1,50 @@
 const {
-  Room, mongoQueryBuilder, getSearchValues, mongoProjectionBuilder,
+  mongoQueryBuilder, mongoProjectionBuilder, mongoBookingsQueryBuilder,
 } = require('../models/room.model');
+const { removeDuplicates, removeRoomNames } = require('../utils/filter');
+const roomRepository = require('../repositories/RoomRepository');
 
-const getFilters = (query) => {
-  const searchValues = getSearchValues(query);
-  return Promise.all([
-    Room.distinct('floor', mongoQueryBuilder(searchValues)),
-    Room.distinct('location', mongoQueryBuilder(searchValues)),
-    Room.distinct('type', mongoQueryBuilder(searchValues)),
-  ]).then(([floors, locations, types]) => {
-    const filterLocations = locations
-      .map(val => val.toUpperCase())
-      .filter((val, i) => locations.indexOf(val) === i);
-    const filterTypes = types
-      .filter(type => !(/^\w{1,2}\./g).test(type));
-    return {
-      floors,
-      locations: filterLocations,
-      types: filterTypes,
-    };
-  }).catch((err) => {
-    // TODO error handling
-    console.error(err);
-  });
-};
+const getFilters = (searchValues) => {
+  const mongoQuery = mongoQueryBuilder(searchValues);
 
-const getNames = (query) => {
-  const searchValues = getSearchValues(query);
-  return Room.distinct('name', mongoQueryBuilder(searchValues))
-    .catch((err) => {
-      // TODO error handling
-      console.error(err);
+  return roomRepository
+    .filters(mongoQuery)
+    .then(([floors, resLocations, resTypes]) => {
+      const locations = removeDuplicates(resLocations);
+      const types = removeRoomNames(resTypes);
+      return {
+        floors, locations, types,
+      };
     });
 };
 
-const list = query =>
-  Room.find(
-    mongoQueryBuilder(getSearchValues(query)),
-    mongoProjectionBuilder(query),
-  )
-    .collation({ locale: 'en', strength: 2 })
-    .catch((err) => {
-      // TODO error handling
-      console.error(err);
-    });
+const getNames = (searchValues) => {
+  const mongoQuery = mongoQueryBuilder(searchValues);
 
+  return roomRepository.names(mongoQuery);
+};
+
+const getClasses = (searchValues) => {
+  const mongoQuery = mongoQueryBuilder(searchValues);
+
+  return roomRepository.groups(mongoQuery);
+};
+
+const list = (query, searchValues) => {
+  const mongoQuery = mongoQueryBuilder(searchValues);
+  if (!query.time && query.withBookings !== '' && !query.week) {
+    const mongoProjection = mongoProjectionBuilder(query);
+    return roomRepository.list(mongoQuery, mongoProjection);
+  }
+
+  const mongoBookingsQuery = mongoBookingsQueryBuilder(searchValues);
+
+  return roomRepository.listAdvanced(mongoQuery, mongoBookingsQuery);
+};
 
 module.exports = {
   getFilters,
   list,
   getNames,
+  getClasses,
 };

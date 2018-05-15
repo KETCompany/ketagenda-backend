@@ -1,10 +1,10 @@
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 
+const { google } = require('../config').password;
+
 module.exports = new GoogleStrategy(
   {
-    clientID: process.env.GOOGLE_CLIENT_ID,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: process.env.GOOGLE_CALLBACK_URL,
+    ...google,
   },
   ((accessToken, refreshToken, profile, cb) => {
 

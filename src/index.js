@@ -2,12 +2,14 @@ require('dotenv').config();
 
 const express = require('express');
 const passport = require('passport'); // TODO: passport
-const mongoose = require('./config/mongoose');
-
 const Promise = require('bluebird'); // eslint-disable-line no-unused-vars
 
+const mongoose = require('./config/mongoose');
+const config = require('./config/config');
 
-const port = process.env.PORT || 3000;
+const { port } = config.server;
+
+
 const app = express();
 
 // require('./config/passport')(passport);

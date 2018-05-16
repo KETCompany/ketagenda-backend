@@ -32,10 +32,12 @@ const createReservation = postData =>
         if (error) {
           return reject(error);
         }
+
+        return resolve(roomRepository.insertBooking(postData.roomId, booking));
       });
-      return roomRepository.insertBooking(postData.roomId, booking);
+    } else {
+      return reject(new Error('No roomID'));
     }
-    return reject(new Error('No roomID'));
   });
 
 const list = (query, searchValues) => {

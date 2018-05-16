@@ -1,6 +1,6 @@
 const WebSocket = require('ws');
 const http = require('http');
-const socketPort = process.env.SOCKETPORT || 3001;
+const { socketPort } = require('./config').server;
 
 const clients = [];
 

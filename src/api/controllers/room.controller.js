@@ -63,6 +63,7 @@ const post = (req, res) => {
       socket.sendMessage(room.displayKeys, JSON.stringify({ bookings: room.bookings }));
     })
     .catch((err) => {
+      // TODO: LOGGER
       console.log(err);
     });
   res.sendStatus(202);

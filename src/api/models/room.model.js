@@ -6,7 +6,7 @@ const { Schema } = mongoose;
 
 const bookingSchema = new Schema({
   group: String,
-  name: String,
+  name: { type: String, required: true },
   tutor: String,
   dates: [
     {

@@ -48,7 +48,6 @@ const get = (req, res) => {
 const getByInfoScreen = (req, res) => {
   const { key } = req.params;
 
-
   roomRepository.getByKey(key)
     .then((room) => {
       res.send(room);
@@ -59,12 +58,13 @@ const getByInfoScreen = (req, res) => {
 };
 
 const post = (req, res) => {
-  socket.sendMessage('9fmFHDbmWyzlsRrt2lEyNSgKQJ3NibqK');
-
-  //.sendMessage('9fmFHDbmWyzlsRrt2lEyNSgKQJ3NibqK');
-  // RoomBusiness.createReservation(req.body).then(console.log).catch((err) => {
-  //   console.log(err);
-  // });
+  RoomBusiness.createReservation(req.body)
+    .then((room) => {
+      socket.sendMessage(room.displayKeys, JSON.stringify({ bookings: room.bookings }));
+    })
+    .catch((err) => {
+      console.log(err);
+    });
   res.sendStatus(202);
 };
 

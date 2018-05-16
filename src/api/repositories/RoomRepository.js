@@ -24,10 +24,11 @@ const list = (query, projection) =>
 const getById = id =>
   Room.find({ _id: id });
 
-const getByKey = key => Room.find({ infoScreenKeys: key });
+const getByKey = key =>
+  Room.find({ displayKeys: key });
 
-const listAdvanced = (match = {}, bookingMatch = []) => {
-  return Room.aggregate([
+const listAdvanced = (match = {}, bookingMatch = []) =>
+  Room.aggregate([
     { $match: match },
     { $unwind: '$bookings' },
     {
@@ -45,14 +46,13 @@ const listAdvanced = (match = {}, bookingMatch = []) => {
       },
     },
   ]);
-};
 
 const insertBooking = (room, booking) =>
   Room.findOneAndUpdate(
     { _id: room },
     { $push: { bookings: booking } },
     { new: false },
-  );
+  ).exec();
 
 module.exports = {
   filters,

@@ -2,7 +2,7 @@ const WebSocket = require('ws');
 const http = require('http');
 const socketPort = process.env.SOCKETPORT || 3001;
 
-let clients = [];
+const clients = [];
 
 const init = (app) => {
   const socket = http.createServer(app);
@@ -18,7 +18,7 @@ const init = (app) => {
     ws.on('message', (response) => {
       const responseData = JSON.parse(response);
       if (responseData.msgType === 'register') {
-        clients.push({ key: responseData.roomKey, socket: ws });
+        clients.push({ key: responseData.displayKey, socket: ws });
       }
     }).on('close', res => clients.filter(value => value.socket._closeCode === res))
       .on('error', (err) => {
@@ -27,7 +27,12 @@ const init = (app) => {
   });
 };
 
-const sendMessage = socketKey => clients.filter(client => client.key === socketKey).map(client => client.socket.send(JSON.stringify({ msgType: 'refresh' })));
+const sendMessage = (socketKeys, reservation) =>
+  socketKeys
+    .forEach(socketKey =>
+      clients.filter(client => client.key === socketKey)
+        .forEach(client =>
+          client.socket.send(reservation)));
 
 module.exports = {
   init,

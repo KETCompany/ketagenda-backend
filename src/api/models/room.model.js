@@ -6,7 +6,7 @@ const { Schema } = mongoose;
 
 const bookingSchema = new Schema({
   group: String,
-  name: String,
+  name: { type: String, required: true },
   tutor: String,
   dates: [
     {
@@ -19,9 +19,9 @@ const bookingSchema = new Schema({
         type: Date,
         min: moment(),
         required: true,
-      }
-    }
-  ]
+      },
+    },
+  ],
 });
 
 const roomSchema = new Schema({
@@ -33,6 +33,7 @@ const roomSchema = new Schema({
   value: Number,
   name: String,
   bookings: [bookingSchema],
+  displayKeys: [String],
 }, {
   strict: 'throw',
   useNestedStrict: true,

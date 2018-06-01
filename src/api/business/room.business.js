@@ -5,11 +5,9 @@ const {
 const { removeDuplicates, removeRoomNames } = require('../utils/filter');
 const roomRepository = require('../repositories/RoomRepository');
 
-const getFilters = (searchValues) => {
-  const mongoQuery = mongoQueryBuilder(searchValues);
-
-  return roomRepository
-    .filters(mongoQuery)
+const getFilters = searchValues =>
+  roomRepository
+    .filters(mongoQueryBuilder(searchValues))
     .then(([floors, resLocations, resTypes]) => {
       const locations = removeDuplicates(resLocations);
       const types = removeRoomNames(resTypes);
@@ -17,42 +15,37 @@ const getFilters = (searchValues) => {
         floors, locations, types,
       };
     });
-};
 
-const getNames = (searchValues) => {
-  const mongoQuery = mongoQueryBuilder(searchValues);
+const getNames = searchValues =>
+  roomRepository.names(mongoQueryBuilder(searchValues));
 
-  return roomRepository.names(mongoQuery);
-};
+const getClasses = searchValues =>
+  roomRepository.groups(mongoQueryBuilder(searchValues));
 
-const getClasses = (searchValues) => {
-  const mongoQuery = mongoQueryBuilder(searchValues);
 
-  return roomRepository.groups(mongoQuery);
-};
+const createReservation = postData =>
+  new Promise((resolve, reject) => {
+    if (postData.roomId) {
+      const booking = new Booking(postData.booking);
 
-const createReservation = (postData) => {
-  if (postData.roomId) {
-    const booking = new Booking(postData);
+      booking.validate((error) => {
+        if (error) {
+          return reject(error);
+        }
 
-    booking.validate(error => Promise.reject(error));
-
-    return roomRepository.insertBooking(postData.roomId, booking);
-  }
-
-  return Promise.reject(new Error('No roomID'));
-};
+        return resolve(roomRepository.insertBooking(postData.roomId, booking));
+      });
+    } else {
+      return reject(new Error('No roomID'));
+    }
+  });
 
 const list = (query, searchValues) => {
   const mongoQuery = mongoQueryBuilder(searchValues);
   if (!query.time && query.withBookings !== '' && !query.week) {
-    const mongoProjection = mongoProjectionBuilder(query);
-    return roomRepository.list(mongoQuery, mongoProjection);
+    return roomRepository.list(mongoQuery, mongoProjectionBuilder(query));
   }
-
-  const mongoBookingsQuery = mongoBookingsQueryBuilder(searchValues);
-
-  return roomRepository.listAdvanced(mongoQuery, mongoBookingsQuery);
+  return roomRepository.listAdvanced(mongoQuery, mongoBookingsQueryBuilder(searchValues));
 };
 
 module.exports = {

@@ -11,5 +11,4 @@ apiRouter.use('/groups', groupRouter);
 apiRouter.use('/users', userRouter);
 apiRouter.use('/events', eventRouter);
 
-
 module.exports = apiRouter;

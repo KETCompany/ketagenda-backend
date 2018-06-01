@@ -19,9 +19,9 @@ const bookingSchema = new Schema({
         type: Date,
         min: moment(),
         required: true,
-      }
-    }
-  ]
+      },
+    },
+  ],
 });
 
 const roomSchema = new Schema({
@@ -208,31 +208,6 @@ const mongoQueryBuilder = (searchValues) => {
 
   return mongoQuery;
 };
-
-class Match {
-  constructor(query, key) {
-    this._query = query;
-    this._key = key;
-  }
-
-  gte(value) {
-    this.query.$and({ [this._key]: { $gte: value } });
-    return this._query;
-  }
-}
-
-class QueryBuilder {
-  constructor() {
-    this.$and = [];
-  }
-  match(key) {
-    return new Match(this, key);
-  }
-
-  build() {
-    return this;
-  }
-}
 
 const mongoBookingsQueryBuilder = (query) => {
   const match = {

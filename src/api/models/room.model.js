@@ -4,25 +4,6 @@ const moment = require('moment');
 
 const { Schema } = mongoose;
 
-const bookingSchema = new Schema({
-  group: String,
-  name: { type: String, required: true },
-  tutor: String,
-  dates: [
-    {
-      start: {
-        type: Date,
-        min: moment(),
-        required: true,
-      },
-      end: {
-        type: Date,
-        min: moment(),
-        required: true,
-      },
-    },
-  ],
-});
 
 const roomSchema = new Schema({
   number: Number,
@@ -32,20 +13,22 @@ const roomSchema = new Schema({
   description: String,
   value: Number,
   name: String,
-  bookings: [bookingSchema],
   displayKeys: [String],
 }, {
   strict: 'throw',
   useNestedStrict: true,
 });
 
-// bookingSchema.path('start').validate((value) => {
-//   console.log(value);
-//   return value.length > 5;
-// }, 'my error type');
+roomSchema.virtual('bookings', {
+  ref: 'bookings',
+  localField: '_id',
+  foreignField: 'room',
+});
+
+roomSchema.set('toObject', { virtuals: true });
+roomSchema.set('toJSON', { virtuals: true });
 
 const Room = mongoose.model('rooms', roomSchema);
-const Booking = mongoose.model('booked', bookingSchema);
 
 const getSearchValues = (query) => {
   if (query) {
@@ -262,7 +245,6 @@ const mongoProjectionBuilder = (query) => {
 
 module.exports = {
   Room,
-  Booking,
   getSearchValues,
   mongoQueryBuilder,
   mongoProjectionBuilder,

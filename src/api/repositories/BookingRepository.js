@@ -7,7 +7,7 @@ const list = () =>
     .collation({ locale: 'en', strength: 2 });
 
 const getById = (id, populate) =>
-  Booking.find({ _id: id })
+  Booking.findOne({ _id: id })
     .populate(populate ? 'users' : '');
 
 const getByEventId = id =>

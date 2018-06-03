@@ -7,7 +7,7 @@ const list = () =>
     .collation({ locale: 'en', strength: 2 });
 
 const getById = (id, populate) =>
-  Group.find({ _id: id })
+  Group.findOne({ _id: id })
     .populate(populate ? 'users' : '');
 
 const create = (body) => {

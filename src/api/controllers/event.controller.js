@@ -1,18 +1,24 @@
 const _ = require('lodash');
+const eventBusiness = require('../business/event.business');
 const eventRepository = require('../repositories/EventRepository');
-const bookingRepository = require('../repositories/BookingRepository');
 
 const list = (req, res) => {
   const { query } = req;
   const { id } = req.params;
 
+  // todo
+  let promise;
+
   if (id) {
-    return bookingRepository.getByEventId(id)
-      .then(events => res.send(events));
+    promise = eventBusiness.listEventBookings(id);
+  } else {
+    promise = eventBusiness.listEvents();
   }
 
-  return eventRepository.list()
-    .then(events => res.send(events))
+  return promise
+    .then((json) => {
+      res.json(json);
+    })
     .catch(err => console.log(err));
 };
 

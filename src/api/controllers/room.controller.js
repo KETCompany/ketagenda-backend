@@ -35,8 +35,9 @@ const list = (req, res) => {
 
 const get = (req, res) => {
   const { id } = req.params;
+  const { populate } = req.query;
 
-  roomRepository.getById(id)
+  roomRepository.getById(id, populate !== undefined)
     .then((room) => {
       res.send(room);
     })

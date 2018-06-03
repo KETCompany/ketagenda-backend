@@ -21,8 +21,9 @@ const list = (query, projection) =>
     projection,
   ).collation({ locale: 'en', strength: 2 });
 
-const getById = id =>
-  Room.find({ _id: id });
+const getById = (id, populate) =>
+  Room.findOne({ _id: id })
+    .populate(populate ? 'bookings' : '');
 
 const getByKey = key =>
   Room.find({ displayKeys: key });

@@ -3,7 +3,9 @@ const {
 } = require('../models/room.model');
 
 const { removeDuplicates, removeRoomNames } = require('../utils/filter');
+const { startEndDate } = require('../utils/date');
 const roomRepository = require('../repositories/RoomRepository');
+const bookingRepository = require('../repositories/BookingRepository');
 
 const getFilters = searchValues =>
   roomRepository
@@ -48,10 +50,17 @@ const list = (query, searchValues) => {
   return roomRepository.listAdvanced(mongoQuery, mongoBookingsQueryBuilder(searchValues));
 };
 
+const listRoomBookings = (id, date, populate) => {
+  const { start, end } = startEndDate(date);
+
+  return bookingRepository.getByRoomId(id, start, end, populate);
+};
+
 module.exports = {
   getFilters,
   list,
   getNames,
   createReservation,
   getClasses,
+  listRoomBookings,
 };

@@ -5,7 +5,17 @@ const socket = require('../../config/socket');
 
 const list = (req, res) => {
   const { query } = req;
+  const { id } = req.params;
   const searchValues = getSearchValues(query);
+
+  if (id) {
+    const { date, populate } = query;
+
+    return RoomBusiness.listRoomBookings(id, date, populate !== undefined)
+      .then(bookings => res.json(bookings));
+  }
+
+
   if (query.filters !== undefined && query.filters !== null) {
     return RoomBusiness.getFilters(searchValues)
       .then((filters) => {

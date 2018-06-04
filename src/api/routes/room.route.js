@@ -5,10 +5,13 @@ const router = express.Router();
 
 router.get('/', controller.list);
 
-router.get('/:id', controller.get);
 
 router.get('/infoscreen/:key', controller.getByInfoScreen);
 
 router.post('/reservation', controller.post);
+
+router.get('/:id', controller.get);
+
+router.get('/:id/bookings', controller.list);
 
 module.exports = router;

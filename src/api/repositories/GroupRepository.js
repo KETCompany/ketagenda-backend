@@ -8,7 +8,7 @@ const list = () =>
 
 const getById = (id, populate) =>
   Group.findOne({ _id: id })
-    .populate(populate ? 'users' : '');
+    .populate(populate ? 'users' : '', '-groups');
 
 const create = (body) => {
   const group = new Group(body);

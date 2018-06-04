@@ -23,7 +23,7 @@ const list = (query, projection) =>
 
 const getById = (id, populate) =>
   Room.findOne({ _id: id })
-    .populate(populate ? 'bookings' : '');
+    .populate(populate ? { path: 'bookings', populate: { path: 'event', select: 'name description' } } : '');
 
 const getByKey = key =>
   Room.find({ displayKeys: key });

@@ -3,12 +3,11 @@ const controller = require('../controllers/room.controller');
 
 const router = express.Router();
 
+router.post('/reservation', controller.post);
+
 router.get('/', controller.list);
 
-
-router.get('/infoscreen/:key', controller.getByInfoScreen);
-
-router.post('/reservation', controller.post);
+router.get('/infoscreen', controller.getByInfoScreen);
 
 router.get('/:id', controller.get);
 

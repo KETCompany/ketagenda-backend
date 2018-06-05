@@ -15,7 +15,6 @@ const list = (req, res) => {
       .then(bookings => res.json(bookings));
   }
 
-
   if (query.filters !== undefined && query.filters !== null) {
     return RoomBusiness.getFilters(searchValues)
       .then((filters) => {
@@ -40,6 +39,7 @@ const list = (req, res) => {
     .catch((err) => {
       // TODO error handling
       console.log(err);
+      res.sendStatus(202);
     });
 };
 
@@ -53,18 +53,21 @@ const get = (req, res) => {
     })
     .catch((err) => {
       console.error(err);
+      res.sendStatus(202);
     });
 };
 
 const getByInfoScreen = (req, res) => {
-  const { key } = req.params;
+  const { key } = req.headers;
+  const { populate } = req.query;
 
-  roomRepository.getByKey(key)
+  roomRepository.getByDisplayKey(key, populate !== undefined)
     .then((room) => {
       res.send(room);
     })
     .catch((err) => {
       console.error(err);
+      res.sendStatus(202);
     });
 };
 
@@ -75,7 +78,7 @@ const post = (req, res) => {
     })
     .catch((err) => {
       // TODO: LOGGER
-      console.log(err);
+      console.error(err);
     });
   res.sendStatus(202);
 };

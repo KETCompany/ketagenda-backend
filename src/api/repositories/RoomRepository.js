@@ -19,11 +19,11 @@ const list = (query, projection) =>
   Room.find(
     query,
     projection,
-  ).collation({ locale: 'en', strength: 2 });
+  ).collation({ locale: 'en', strength: 2 }).lean();
 
 const getById = (id, populate) =>
   Room.findOne({ _id: id })
-    .populate(populate ? { path: 'bookings', populate: { path: 'event', select: 'name description' } } : '');
+    .populate(populate ? { path: 'bookings', options: { sort: { start: 1 } }, populate: { path: 'event', select: 'name description', populate: { path: 'groups owner', select: 'name' } } } : '');
 
 const getByKey = key =>
   Room.find({ displayKeys: key });

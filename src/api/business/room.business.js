@@ -2,10 +2,11 @@ const {
   Booking, mongoQueryBuilder, mongoProjectionBuilder, mongoBookingsQueryBuilder,
 } = require('../models/room.model');
 
+const bookingRepository = require('../repositories/BookingRepository');
+
 const { removeDuplicates, removeRoomNames } = require('../utils/filter');
 const { startEndDate } = require('../utils/date');
 const roomRepository = require('../repositories/RoomRepository');
-const bookingRepository = require('../repositories/BookingRepository');
 
 const getFilters = searchValues =>
   roomRepository
@@ -45,8 +46,18 @@ const createReservation = postData =>
 const list = (query, searchValues) => {
   const mongoQuery = mongoQueryBuilder(searchValues);
   if (!query.time && query.withBookings !== '' && !query.week) {
-    return roomRepository.list(mongoQuery, mongoProjectionBuilder(query));
+    return roomRepository.list(mongoQuery, mongoProjectionBuilder(query)).lean()
+      .then(rooms =>
+        bookingRepository.listNow()
+          .then((bookings) => {
+            const occupiedRooms = bookings.map(booking => booking.room);
+            return rooms.map(room => ({
+              ...room,
+              occupied: occupiedRooms.includes(room.id),
+            }));
+          }));
   }
+
   return roomRepository.listAdvanced(mongoQuery, mongoBookingsQueryBuilder(searchValues));
 };
 

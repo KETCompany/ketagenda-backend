@@ -14,6 +14,7 @@ const getById = (id, populate) =>
   Event.findOne({ _id: id })
     .populate(populate ? 'bookings' : '')
     .populate(populate ? 'groups' : '')
+    .populate(populate ? 'owner' : '')
     .populate(populate ? 'subscribers' : '');
 
 const create = (body) => {

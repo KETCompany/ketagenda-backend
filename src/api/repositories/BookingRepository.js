@@ -43,6 +43,14 @@ const filterDate = (start, end) => {
   return Promise.resolve('');
 }
 
+const listNow = () =>
+  Booking.find({
+    $and: [
+      { start: { $lte: moment().toDate() } },
+      { end: { $gte: moment().toDate() } },
+    ],
+  }, 'room');
+
 const create = (body) => {
   const booking = new Booking(body);
 
@@ -56,4 +64,5 @@ module.exports = {
   create,
   getByEventId,
   getByRoomId,
+  listNow,
 };

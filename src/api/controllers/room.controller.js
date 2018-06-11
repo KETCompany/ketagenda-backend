@@ -47,14 +47,17 @@ const get = (req, res) => {
   const { id } = req.params;
   const { populate } = req.query;
 
-  roomRepository.getById(id, populate !== undefined)
-    .then((room) => {
-      res.send(room);
-    })
-    .catch((err) => {
-      console.error(err);
-      res.sendStatus(202);
-    });
+  if (id !== ':id') {
+    roomRepository.getById(id, populate !== undefined)
+      .then((room) => {
+        res.send(room);
+      })
+      .catch((err) => {
+        console.error(err);
+        res.sendStatus(202);
+      });
+  }
+
 };
 
 const getByInfoScreen = (req, res) => {

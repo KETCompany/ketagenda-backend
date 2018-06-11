@@ -25,8 +25,10 @@ const getById = (id, populate) =>
   Room.findOne({ _id: id })
     .populate(populate ? { path: 'bookings', options: { sort: { start: 1 } }, populate: { path: 'event', select: 'name description', populate: { path: 'groups owner', select: 'name' } } } : '');
 
-const getByKey = key =>
-  Room.find({ displayKeys: key });
+
+const getByDisplayKey = (key, populate) =>
+  Room.findOne({ displayKeys: key })
+    .populate(populate ? { path: 'bookings', populate: { path: 'event', select: 'name description' } } : '');
 
 const listAdvanced = (match = {}, bookingMatch = []) =>
   Room.aggregate([
@@ -63,5 +65,5 @@ module.exports = {
   listAdvanced,
   getById,
   insertBooking,
-  getByKey,
+  getByDisplayKey,
 };

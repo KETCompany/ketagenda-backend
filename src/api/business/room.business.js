@@ -1,6 +1,8 @@
 const {
-  Booking, mongoQueryBuilder, mongoProjectionBuilder, mongoBookingsQueryBuilder,
+  mongoQueryBuilder, mongoProjectionBuilder, mongoBookingsQueryBuilder,
 } = require('../models/room.model');
+
+const { Booking } = require('../models/booking.model');
 
 const bookingRepository = require('../repositories/BookingRepository');
 

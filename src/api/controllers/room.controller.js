@@ -113,10 +113,19 @@ const update = (req, res) => {
     .catch(err => sendError(res, err));
 };
 
+const remove = (req, res) => {
+  const { id } = req.params;
+
+  return roomRepository.remove(id)
+    .then(() => sendResponse(res, { removed: true }))
+    .catch(err => sendError(res, err));
+};
+
 module.exports = {
   list,
   get,
   post,
   getByInfoScreen,
   update,
+  remove,
 };

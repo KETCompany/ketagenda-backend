@@ -35,6 +35,11 @@ const update = (id, body) =>
     .then(notFoundHandler(id, 'Room'))
     .catch(mongoErrorHandler);
 
+const remove = id =>
+  Room.findByIdAndRemove(id)
+    .then(notFoundHandler(id, 'Room'))
+    .catch(mongoErrorHandler);
+
 const getById = (id, populate) =>
   Room.findById(id)
     .populate(populate ? { path: 'bookings', options: { sort: { start: 1 } }, populate: { path: 'event', select: 'name description', populate: { path: 'groups owner', select: 'name' } } } : '')
@@ -75,4 +80,5 @@ module.exports = {
   getByDisplayKey,
   create,
   update,
+  remove,
 };

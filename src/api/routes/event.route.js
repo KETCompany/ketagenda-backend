@@ -1,17 +1,13 @@
 const express = require('express');
-const controller = require('../controllers/room.controller');
+const controller = require('../controllers/event.controller');
 
 const router = express.Router();
 
-// router.post('/reservation', controller.post);
-
 router.get('/', controller.list);
 
-// router.post('/', controller.post);
-
-router.get('/infoscreen', controller.getByInfoScreen);
-
 router.get('/:id', controller.get);
+
+router.post('/', controller.create);
 
 router.get('/:id/bookings', controller.list);
 

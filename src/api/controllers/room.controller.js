@@ -1,3 +1,5 @@
+const _ = require('lodash');
+
 const { getSearchValues } = require('../models/room.model');
 const roomRepository = require('../repositories/RoomRepository');
 const RoomBusiness = require('../business/room.business');
@@ -69,7 +71,7 @@ const getByInfoScreen = (req, res) => {
   const { key } = req.headers;
   const { populate } = req.query;
 
-  roomRepository.getByDisplayKey(key, populate !== undefined)
+  return roomRepository.getByDisplayKey(key, populate !== undefined)
     .then((room) => {
       return sendResponse(res, room);
     })
@@ -81,6 +83,14 @@ const getByInfoScreen = (req, res) => {
 
 // TODO
 const post = (req, res) => {
+  const { body } = req;
+
+  const room = _.pick(body, 'department', 'floor', 'type', 'description', 'name');
+
+  return roomRepository.create(room)
+    .then(savedRoom => sendResponse(res, savedRoom))
+    .catch(err => sendError(res, err));
+
   // RoomBusiness.createReservation(req.body)
   //   .then((room) => {
   //     socket.sendMessage(room.displayKeys, JSON.stringify({ bookings: room.bookings }));
@@ -92,9 +102,21 @@ const post = (req, res) => {
   // res.sendStatus(202);
 };
 
+const update = (req, res) => {
+  const { id } = req.params;
+  const { body } = req;
+
+  const room = _.pick(body, 'department', 'floor', 'type', 'description', 'name', 'location');
+
+  return roomRepository.update(id, room)
+    .then(updatedRoom => sendResponse(res, updatedRoom))
+    .catch(err => sendError(res, err));
+};
+
 module.exports = {
   list,
   get,
   post,
   getByInfoScreen,
+  update,
 };

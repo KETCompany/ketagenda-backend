@@ -2,6 +2,8 @@ const {
   Room,
 } = require('../models/room.model');
 
+const { mongoErrorHandler, findNoneHandler } = require('../utils/errorHandler');
+
 const filters = query =>
   Promise.all([
     Room.distinct('floor', query),
@@ -21,16 +23,21 @@ const list = (query, projection) =>
     projection,
   ).collation({ locale: 'en', strength: 2 }).lean();
 
+const create = (body) => {
+  const room = new Room(body);
+
+  return room.save()
+    .catch(mongoErrorHandler);
+};
+
+const update = (id, body) =>
+  Room.findByIdAndUpdate(id, body, { new: true }).lean()
+    .catch(mongoErrorHandler);
+
 const getById = (id, populate) =>
   Room.findById(id)
     .populate(populate ? { path: 'bookings', options: { sort: { start: 1 } }, populate: { path: 'event', select: 'name description', populate: { path: 'groups owner', select: 'name' } } } : '')
-    .then((room) => {
-      if (room === null) {
-        throw new Error(`Room with ${id} not found`);
-      }
-
-      return room;
-    });
+    .then(findNoneHandler(id, 'Room'));
 
 const getByDisplayKey = (key, populate) =>
   Room.findOne({ displayKeys: key })
@@ -56,12 +63,6 @@ const listAdvanced = (match = {}, bookingMatch = []) =>
     },
   ]);
 
-const insertBooking = (room, booking) =>
-  Room.findOneAndUpdate(
-    { _id: room },
-    { $push: { bookings: booking } },
-    { new: false },
-  ).exec();
 
 module.exports = {
   filters,
@@ -70,6 +71,7 @@ module.exports = {
   list,
   listAdvanced,
   getById,
-  insertBooking,
   getByDisplayKey,
+  create,
+  update,
 };

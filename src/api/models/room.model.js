@@ -8,11 +8,12 @@ const { Schema } = mongoose;
 const roomSchema = new Schema({
   number: Number,
   department: String,
+  location: String,
   floor: Number,
   type: String,
   description: String,
   value: Number,
-  name: String,
+  name: { type: String, unique: true },
   displayKeys: [String],
 }, {
   strict: 'throw',

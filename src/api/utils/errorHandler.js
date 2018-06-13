@@ -11,6 +11,10 @@ const mongoErrorHandler = (err) => {
     throw new Error('There was a duplicate key error');
   }
 
+  if (err.name === 'CastError') {
+    throw new Error(`${err.value} needs to be ${err.kind}`);
+  }
+
   throw err;
 };
 

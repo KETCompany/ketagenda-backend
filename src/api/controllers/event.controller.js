@@ -35,15 +35,38 @@ const get = (req, res) => {
 const create = (req, res) => {
   const { body } = req;
 
-  const event = _.pick(body, 'name', 'description', 'owner', 'groups', 'users', 'bookings');
+  const event = _.pick(body, 'name', 'description', 'owner', 'groups', 'subscribers', 'bookings');
 
   return eventRepository.create(event)
     .then(savedEvent => sendResponse(res, savedEvent))
     .catch(err => sendError(res, err, 500));
-}
+};
 
 const update = (req, res) => {
+  const { body } = req;
+  const { id } = req.params;
 
+  const event = _.pick(body, 'name', 'description');
+
+  return eventRepository.update(id, event)
+    .then(updatedEvent => sendResponse(res, updatedEvent))
+    .catch(err => sendError(res, err, 500));
+};
+
+
+const remove = (req, res) => {
+  const { id } = req.params;
+  const { force } = req.query;
+
+  if (force !== undefined) {
+    return eventRepository.removeAll(id)
+      .then(() => sendResponse(res, { remove: true }))
+      .catch(err => sendError(res, err));
+  }
+
+  return eventRepository.remove(id)
+    .then(() => sendResponse(res, { remove: true }))
+    .catch(err => sendError(res, err));
 };
 
 module.exports = {
@@ -51,4 +74,5 @@ module.exports = {
   get,
   create,
   update,
+  remove,
 };

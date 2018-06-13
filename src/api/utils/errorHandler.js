@@ -14,7 +14,7 @@ const mongoErrorHandler = (err) => {
   throw err;
 };
 
-const findNoneHandler = (id, field) => (object) => {
+const notFoundHandler = (id, field) => (object) => {
   if (object === null) {
     throw new Error(`${field} with ${id} not found`);
   }
@@ -24,5 +24,5 @@ const findNoneHandler = (id, field) => (object) => {
 
 module.exports = {
   mongoErrorHandler,
-  findNoneHandler,
+  notFoundHandler,
 };

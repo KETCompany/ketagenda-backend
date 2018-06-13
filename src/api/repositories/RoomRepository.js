@@ -2,7 +2,7 @@ const {
   Room,
 } = require('../models/room.model');
 
-const { mongoErrorHandler, findNoneHandler } = require('../utils/errorHandler');
+const { mongoErrorHandler, notFoundHandler } = require('../utils/errorHandler');
 
 const filters = query =>
   Promise.all([
@@ -32,12 +32,13 @@ const create = (body) => {
 
 const update = (id, body) =>
   Room.findByIdAndUpdate(id, body, { new: true }).lean()
+    .then(notFoundHandler(id, 'Room'))
     .catch(mongoErrorHandler);
 
 const getById = (id, populate) =>
   Room.findById(id)
     .populate(populate ? { path: 'bookings', options: { sort: { start: 1 } }, populate: { path: 'event', select: 'name description', populate: { path: 'groups owner', select: 'name' } } } : '')
-    .then(findNoneHandler(id, 'Room'));
+    .then(notFoundHandler(id, 'Room'));
 
 const getByDisplayKey = (key, populate) =>
   Room.findOne({ displayKeys: key })

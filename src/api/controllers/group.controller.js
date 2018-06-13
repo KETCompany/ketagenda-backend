@@ -32,7 +32,22 @@ const create = (req, res) => {
 };
 
 const update = (req, res) => {
+  const { id } = req.params;
+  const { body } = req;
 
+  const group = _.pick(body, 'name', 'description');
+
+  return groupRepository.update(id, group)
+    .then(response => sendResponse(res, response))
+    .catch(err => sendError(res, err, 500));
+};
+
+const remove = (req, res) => {
+  const { id } = req.params;
+
+  return groupRepository.remove(id)
+    .then(response => sendResponse(res, { removed: true }))
+    .catch(err => sendError(res, err, 500));
 };
 
 module.exports = {
@@ -40,4 +55,5 @@ module.exports = {
   get,
   create,
   update,
+  remove,
 };

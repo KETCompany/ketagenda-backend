@@ -1,5 +1,5 @@
 const {
-  Booking, mongoQueryBuilder, mongoProjectionBuilder, mongoBookingsQueryBuilder,
+  mongoQueryBuilder, mongoProjectionBuilder, mongoBookingsQueryBuilder,
 } = require('../models/room.model');
 
 const bookingRepository = require('../repositories/BookingRepository');
@@ -24,24 +24,6 @@ const getNames = searchValues =>
 
 const getClasses = searchValues =>
   roomRepository.groups(mongoQueryBuilder(searchValues));
-
-
-const createReservation = postData =>
-  new Promise((resolve, reject) => {
-    if (postData.roomId) {
-      const booking = new Booking(postData.booking);
-
-      booking.validate((error) => {
-        if (error) {
-          return reject(error);
-        }
-
-        return resolve(roomRepository.insertBooking(postData.roomId, booking));
-      });
-    } else {
-      return reject(new Error('No roomID'));
-    }
-  });
 
 const list = (query, searchValues) => {
   const mongoQuery = mongoQueryBuilder(searchValues);

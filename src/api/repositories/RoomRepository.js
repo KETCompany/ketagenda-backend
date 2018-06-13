@@ -2,6 +2,10 @@ const {
   Room,
 } = require('../models/room.model');
 
+const {
+  Booking,
+} = require('../models/booking.model');
+
 const { mongoErrorHandler, notFoundHandler } = require('../utils/errorHandler');
 
 const filters = query =>
@@ -36,9 +40,14 @@ const update = (id, body) =>
     .catch(mongoErrorHandler);
 
 const remove = id =>
-  Room.findByIdAndRemove(id)
-    .then(notFoundHandler(id, 'Room'))
-    .catch(mongoErrorHandler);
+  Booking.find({ room: id })
+    .then((bookings) => {
+      if (bookings.length === 0) { // SAFE TO REMOVE
+        return Room.findByIdAndRemove(id)
+          .then(notFoundHandler(id, 'Room'));
+      }
+      throw new Error('Not safe to delete room has bookings');
+    }).catch(mongoErrorHandler);
 
 const getById = (id, populate) =>
   Room.findById(id)

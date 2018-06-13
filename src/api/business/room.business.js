@@ -2,6 +2,8 @@ const {
   mongoQueryBuilder, mongoProjectionBuilder, mongoBookingsQueryBuilder,
 } = require('../models/room.model');
 
+const { Booking } = require('../models/booking.model');
+
 const bookingRepository = require('../repositories/BookingRepository');
 
 const { removeDuplicates, removeRoomNames } = require('../utils/filter');

@@ -3,6 +3,9 @@ const roomRepository = require('../repositories/RoomRepository');
 const RoomBusiness = require('../business/room.business');
 const socket = require('../../config/socket');
 
+const { sendResponse, sendError, sendErrorMessage } = require('../utils/responseHandler');
+const Logger = require('../utils/logger');
+
 const list = (req, res) => {
   const { query } = req;
   const { id } = req.params;
@@ -12,52 +15,54 @@ const list = (req, res) => {
     const { date, populate } = query;
 
     return RoomBusiness.listRoomBookings(id, date, populate !== undefined)
-      .then(bookings => res.json(bookings));
+      .then(bookings => sendResponse(res, bookings))
+      .catch((err) => {
+        Logger.error(err);
+        return sendError(res, new Error('Get bookings of room failed'), 500);
+      });
   }
 
   if (query.filters !== undefined && query.filters !== null) {
     return RoomBusiness.getFilters(searchValues)
-      .then((filters) => {
-        res.send({ ...filters });
+      .then(filters => sendResponse(res, { ...filters }))
+      .catch((err) => {
+        Logger.error(err);
+        return sendError(res, new Error('Get filter failed'), 500);
       });
   }
 
   if (query.names !== undefined && query.names !== null) {
     return RoomBusiness.getNames(searchValues)
       .then((names) => {
-        res.send({ names });
+        sendResponse(res, { names });
+      })
+      .catch((err) => {
+        Logger.error(err);
+        return sendError(res, new Error('Get names failed'), 500);
       });
   }
 
   if (query.classes !== undefined && query.classes !== null) {
     return RoomBusiness.getClasses(searchValues)
-      .then(classes => res.send({ classes }));
+      .then(classes => sendResponse(res, { classes }))
+      .catch((err) => {
+        Logger.error(err);
+        return sendError(res, new Error('Get groups failed'), 500);
+      });
   }
 
   return RoomBusiness.list(query, searchValues)
-    .then(rooms => res.send(rooms))
-    .catch((err) => {
-      // TODO error handling
-      console.log(err);
-      res.sendStatus(202);
-    });
+    .then(rooms => sendResponse(res, rooms))
+    .catch(err => sendError(res, err, 500));
 };
 
 const get = (req, res) => {
   const { id } = req.params;
   const { populate } = req.query;
 
-  if (id !== ':id') {
-    roomRepository.getById(id, populate !== undefined)
-      .then((room) => {
-        res.send(room);
-      })
-      .catch((err) => {
-        console.error(err);
-        res.sendStatus(202);
-      });
-  }
-
+  return roomRepository.getById(id, populate !== undefined)
+    .then(room => sendResponse(res, room))
+    .catch(err => sendErrorMessage(res, err, 'Cannot find room', `Room with id: ${id} not found.`));
 };
 
 const getByInfoScreen = (req, res) => {
@@ -66,11 +71,10 @@ const getByInfoScreen = (req, res) => {
 
   roomRepository.getByDisplayKey(key, populate !== undefined)
     .then((room) => {
-      res.send(room);
+      return sendResponse(res, room);
     })
     .catch((err) => {
-      console.error(err);
-      res.sendStatus(202);
+      return sendError(res, err, 500);
     });
 };
 

@@ -22,9 +22,15 @@ const list = (query, projection) =>
   ).collation({ locale: 'en', strength: 2 }).lean();
 
 const getById = (id, populate) =>
-  Room.findOne({ _id: id })
-    .populate(populate ? { path: 'bookings', options: { sort: { start: 1 } }, populate: { path: 'event', select: 'name description', populate: { path: 'groups owner', select: 'name' } } } : '');
+  Room.findById(id)
+    .populate(populate ? { path: 'bookings', options: { sort: { start: 1 } }, populate: { path: 'event', select: 'name description', populate: { path: 'groups owner', select: 'name' } } } : '')
+    .then((room) => {
+      if (room === null) {
+        throw new Error(`Room with ${id} not found`);
+      }
 
+      return room;
+    });
 
 const getByDisplayKey = (key, populate) =>
   Room.findOne({ displayKeys: key })

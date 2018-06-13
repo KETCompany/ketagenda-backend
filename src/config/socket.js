@@ -2,12 +2,14 @@ const WebSocket = require('ws');
 const http = require('http');
 const { socketPort } = require('./config').server;
 
+const Logger = require('../api/utils/logger');
+
 const clients = [];
 
 const init = (app) => {
   const socket = http.createServer(app);
   socket.listen(socketPort, () => {
-    console.log(`socket server listening to http://localhost:${socketPort}`);
+    Logger.info(`socket server listening to http://localhost:${socketPort}`);
   });
 
   const wss = new WebSocket.Server({ server: socket });
@@ -22,7 +24,7 @@ const init = (app) => {
       }
     }).on('close', res => clients.filter(value => value.socket._closeCode === res))
       .on('error', (err) => {
-        console.log(err);
+        Logger.error(err);
       });
   });
 };

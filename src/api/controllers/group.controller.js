@@ -2,12 +2,14 @@ const _ = require('lodash');
 const groupRepository = require('../repositories/GroupRepository');
 // const groupBuisness = require('../business/group.business');
 
+const { sendResponse, sendErrorMessage, sendError } = require('../utils/responseHandler');
+
 const list = (req, res) => {
   const { query } = req;
 
   return groupRepository.list()
-    .then(groups => res.send(groups))
-    .catch(err => console.log(err));
+    .then(groups => sendResponse(res, groups))
+    .catch(err => sendError(res, err, 500));
 };
 
 const get = (req, res) => {
@@ -15,12 +17,8 @@ const get = (req, res) => {
   const { populate } = req.query;
 
   return groupRepository.getById(id, populate !== undefined)
-    .then((group) => {
-      res.send(group);
-    })
-    .catch((err) => {
-      console.error(err);
-    });
+    .then(group => sendResponse(res, group))
+    .catch(err => sendErrorMessage(res, err, 'Cannot find group', `Group with id: ${id} not found.`));
 };
 
 const create = (req, res) => {
@@ -29,7 +27,8 @@ const create = (req, res) => {
   const group = _.pick(body, 'name', 'description');
 
   return groupRepository.create(group)
-    .then(response => res.json(response));
+    .then(response => sendResponse(res, response))
+    .catch(err => sendError(res, err, 500));
 };
 
 const update = (req, res) => {

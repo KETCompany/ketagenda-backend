@@ -4,8 +4,10 @@ const controller = require('../controllers/user.controller');
 const router = express.Router();
 
 router.get('/', controller.list);
+router.get('/students', controller.listStudents);
+router.get('/teachers', controller.listTeachers);
 router.get('/:id', controller.get);
 router.post('/', controller.create);
-router.put('/', controller.update);
+router.put('/:id', controller.update);
 
 module.exports = router;

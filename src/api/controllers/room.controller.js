@@ -78,16 +78,18 @@ const getByInfoScreen = (req, res) => {
     });
 };
 
+
+// TODO
 const post = (req, res) => {
-  RoomBusiness.createReservation(req.body)
-    .then((room) => {
-      socket.sendMessage(room.displayKeys, JSON.stringify({ bookings: room.bookings }));
-    })
-    .catch((err) => {
-      // TODO: LOGGER
-      console.error(err);
-    });
-  res.sendStatus(202);
+  // RoomBusiness.createReservation(req.body)
+  //   .then((room) => {
+  //     socket.sendMessage(room.displayKeys, JSON.stringify({ bookings: room.bookings }));
+  //   })
+  //   .catch((err) => {
+  //     // TODO: LOGGER
+  //     console.error(err);
+  //   });
+  // res.sendStatus(202);
 };
 
 module.exports = {

@@ -12,6 +12,7 @@ const groupSchema = new Schema({
   updatedAt: Date,
 }, {
   strict: 'throw',
+  timestamps: true,
   useNestedStrict: true,
 });
 

@@ -5,10 +5,11 @@ const { Group } = require('./group.model');
 const { Schema } = mongoose;
 
 const userModel = new Schema({
-  name: String,
+  name: { type: String, required: true },
   email: { type: String, unique: true },
+  short: { type: String },
   role: {
-    type: String, enum: ['Admin', 'Student', 'Teacher'],
+    type: String, enum: ['Admin', 'Student', 'Teacher'], required: true,
   },
   groups: [{
     type: Schema.Types.ObjectId,
@@ -28,6 +29,7 @@ const userModel = new Schema({
 }, {
   strict: 'throw',
   useNestedStrict: true,
+  timestamps: true,
 });
 
 const User = mongoose.model('users', userModel);

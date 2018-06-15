@@ -18,6 +18,7 @@ const roomSchema = new Schema({
 }, {
   strict: 'throw',
   useNestedStrict: true,
+  timestamps: true,
 });
 
 roomSchema.virtual('bookings', {
@@ -65,27 +66,7 @@ const getSearchValues = (query) => {
       }
     }
 
-    if (query.time) {
-      searchValues.time = moment.unix(query.time).toDate();
-    }
-
-    if (query.sTime) {
-      searchValues.sTime = moment.unix(query.sTime).toDate();
-    }
-
-    if (query.eTime) {
-      searchValues.eTime = moment.unix(query.eTime).toDate();
-    }
-
-    if (!searchValues.week) {
-      if (query.week) {
-        searchValues.week = _.toNumber(query.week);
-      } else {
-        searchValues.week = moment().week();
-      }
-    }
-
-    return { ...searchValues, ..._.pick(query, 'type', 'name', 'group', 'tutor', 'subject') };
+    return { ...searchValues, ..._.pick(query, 'type', 'name') };
   }
   return {};
 };

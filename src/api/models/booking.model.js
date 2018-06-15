@@ -58,6 +58,7 @@ const bookingSchema = new Schema({
 }, {
   strict: 'throw',
   useNestedStrict: true,
+  timestamps: true,
 });
 
 const Booking = mongoose.model('bookings', bookingSchema);

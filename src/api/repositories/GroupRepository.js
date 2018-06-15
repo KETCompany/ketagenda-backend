@@ -4,8 +4,9 @@ const {
 
 const { mongoErrorHandler, notFoundHandler } = require('../utils/errorHandler');
 
-const list = () =>
+const list = select =>
   Group.find({})
+    .select(select)
     .collation({ locale: 'en', strength: 2 });
 
 const getById = (id, populate) =>

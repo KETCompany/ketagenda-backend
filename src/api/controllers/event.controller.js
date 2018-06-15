@@ -9,6 +9,8 @@ const list = (req, res) => {
   const { query } = req;
   const { id } = req.params;
 
+  // const validatedQuery = _.pick(query, 'name', 'owner')
+
   // todo
   let promise;
 
@@ -29,7 +31,7 @@ const get = (req, res) => {
 
   return eventRepository.getById(id, populate !== undefined)
     .then(user => sendResponse(res, user))
-    .catch(err => sendErrorMessage(res, err, 'Cannot find event', `Event with id: ${id} not found.`));
+    .catch(err => sendErrorMessage(res, err, 'Cannot find event', `Event with id: ${id} not found.`, 404));
 };
 
 const create = (req, res) => {
@@ -39,7 +41,7 @@ const create = (req, res) => {
 
   return eventRepository.create(event)
     .then(savedEvent => sendResponse(res, savedEvent))
-    .catch(err => sendError(res, err, 500));
+    .catch(err => sendError(res, err, 400));
 };
 
 const update = (req, res) => {
@@ -50,7 +52,7 @@ const update = (req, res) => {
 
   return eventRepository.update(id, event)
     .then(updatedEvent => sendResponse(res, updatedEvent))
-    .catch(err => sendError(res, err, 500));
+    .catch(err => sendError(res, err, 400));
 };
 
 

@@ -6,10 +6,13 @@ const {
   Group,
 } = require('../models/group.model');
 
+const { mongoErrorHandler, notFoundHandler } = require('../utils/errorHandler');
+
 const Logger = require('../utils/logger');
 
 const list = () =>
   User.find({})
+    .sort({ createdAt: -1 })
     .collation({ locale: 'en', strength: 2 });
 
 const listRole = role =>
@@ -22,13 +25,7 @@ const listTeachers = () => listRole('Teacher');
 const getById = (id, populate) =>
   User.findById(id)
     .populate(populate ? 'groups' : '')
-    .then((user) => {
-      if (user) {
-        return user;
-      }
-
-      throw new Error(`User ${id} not found`);
-    });
+    .then(notFoundHandler(id, 'User'));
 
 const create = (body) => {
   const user = new User(body);
@@ -39,22 +36,15 @@ const create = (body) => {
         return Group.findByIdAndUpdate(body.groups[0], { $push: { users: user.id } })
           .then(() => savedUser);
       }
-
       return savedUser;
     })
-    .catch((err) => {
-      Logger.error(`${err} - ${JSON.stringify(body)}`);
-      if (err.name === 'ValidationError') {
-        throw new Error(err.message);
-      }
-
-      if (err.code === 11000) {
-        throw new Error('There was a duplicate key error');
-      }
-
-      throw err;
-    });
+    .catch(mongoErrorHandler);
 };
+
+const update = (id, body) =>
+  User.findByIdAndUpdate(id, body, { new: true }).lean()
+    .then(notFoundHandler(id, 'User'))
+    .catch(mongoErrorHandler);
 
 module.exports = {
   list,
@@ -62,4 +52,5 @@ module.exports = {
   create,
   listStudents,
   listTeachers,
+  update,
 };

@@ -64,7 +64,7 @@ const get = (req, res) => {
 
   return roomRepository.getById(id, populate !== undefined)
     .then(room => sendResponse(res, room))
-    .catch(err => sendErrorMessage(res, err, 'Cannot find room', `Room with id: ${id} not found.`));
+    .catch(err => sendErrorMessage(res, err, 'Cannot find room', `Room with id: ${id} not found.`, 404));
 };
 
 const getByInfoScreen = (req, res) => {

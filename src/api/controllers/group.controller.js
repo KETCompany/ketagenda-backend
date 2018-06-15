@@ -7,7 +7,12 @@ const { sendResponse, sendErrorMessage, sendError } = require('../utils/response
 const list = (req, res) => {
   const { query } = req;
 
-  return groupRepository.list()
+  let select;
+  if (query.select) {
+    select = query.select.split(',').filter(i => ['id', 'description', 'users', 'name'].includes(i));
+  }
+
+  return groupRepository.list(select)
     .then(groups => sendResponse(res, groups))
     .catch(err => sendError(res, err, 500));
 };
@@ -18,7 +23,7 @@ const get = (req, res) => {
 
   return groupRepository.getById(id, populate !== undefined)
     .then(group => sendResponse(res, group))
-    .catch(err => sendErrorMessage(res, err, 'Cannot find group', `Group with id: ${id} not found.`));
+    .catch(err => sendErrorMessage(res, err, 'Cannot find group', `Group with id: ${id} not found.`, 404));
 };
 
 const create = (req, res) => {

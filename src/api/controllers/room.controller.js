@@ -85,7 +85,7 @@ const getByInfoScreen = (req, res) => {
 const post = (req, res) => {
   const { body } = req;
 
-  const room = _.pick(body, 'department', 'floor', 'type', 'description', 'name');
+  const room = _.pick(body, 'department', 'floor', 'type', 'description', 'name', 'number');
 
   return roomRepository.create(room)
     .then(savedRoom => sendResponse(res, savedRoom))
@@ -106,7 +106,7 @@ const update = (req, res) => {
   const { id } = req.params;
   const { body } = req;
 
-  const room = _.pick(body, 'department', 'floor', 'type', 'description', 'name', 'location');
+  const room = _.pick(body, 'department', 'floor', 'type', 'description', 'name', 'location', 'number');
 
   return roomRepository.update(id, room)
     .then(updatedRoom => sendResponse(res, updatedRoom))

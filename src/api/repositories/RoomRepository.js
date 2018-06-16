@@ -25,7 +25,9 @@ const list = (query, projection) =>
   Room.find(
     query,
     projection,
-  ).collation({ locale: 'en', strength: 2 }).lean();
+  )
+    .sort({ createdAt: -1 })
+    .collation({ locale: 'en', strength: 2 }).lean();
 
 const create = (body) => {
   const room = new Room(body);

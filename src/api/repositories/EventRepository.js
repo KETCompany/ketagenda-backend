@@ -29,8 +29,8 @@ const getById = (id, populate) =>
     .then(notFoundHandler(id, 'Event'))
     .catch(mongoErrorHandler);
 
-const remove = (id) => {
-  return Booking.findOne({ event: id })
+const remove = id =>
+  Booking.findOne({ event: id })
     .then((booking) => {
       if (booking) {
         throw new Error('Not safe to delete event has bookings');
@@ -39,7 +39,6 @@ const remove = (id) => {
           .then(notFoundHandler(id, 'Event'));
       }
     });
-};
 
 const removeAll = id =>
   Promise.all([

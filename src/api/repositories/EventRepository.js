@@ -14,9 +14,10 @@ const bookingRepository = require('../repositories/BookingRepository');
 
 const { mongoErrorHandler, notFoundHandler } = require('../utils/errorHandler');
 
-const list = () =>
+const list = populate =>
   Event.find({})
     .sort({ createdAt: -1 })
+    .populate(populate ? 'owner' : '')
     .collation({ locale: 'en', strength: 2 });
 
 const getById = (id, populate) =>

@@ -7,6 +7,7 @@ const Logger = require('../utils/logger');
 
 const list = (req, res) => {
   const { query } = req;
+  const { populate } = req.query;
   const { id } = req.params;
 
   // const validatedQuery = _.pick(query, 'name', 'owner')
@@ -17,7 +18,7 @@ const list = (req, res) => {
   if (id) {
     promise = eventBusiness.listEventBookings(id);
   } else {
-    promise = eventBusiness.listEvents();
+    promise = eventBusiness.listEvents(populate !== undefined);
   }
 
   return promise

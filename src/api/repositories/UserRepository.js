@@ -17,6 +17,7 @@ const list = () =>
 
 const listRole = role =>
   User.find({ role })
+    .sort({ createdAt: -1 })
     .collation({ locale: 'en', strength: 2 });
 
 const listStudents = () => listRole('Student');
@@ -46,6 +47,11 @@ const update = (id, body) =>
     .then(notFoundHandler(id, 'User'))
     .catch(mongoErrorHandler);
 
+const remove = id => {
+  // needs to delete in groupe aswell
+  return Promise.resolve(id);
+}
+
 module.exports = {
   list,
   getById,
@@ -53,4 +59,5 @@ module.exports = {
   listStudents,
   listTeachers,
   update,
+  remove,
 };

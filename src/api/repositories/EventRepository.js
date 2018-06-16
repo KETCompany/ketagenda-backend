@@ -16,6 +16,7 @@ const { mongoErrorHandler, notFoundHandler } = require('../utils/errorHandler');
 
 const list = () =>
   Event.find({})
+    .sort({ createdAt: -1 })
     .collation({ locale: 'en', strength: 2 });
 
 const getById = (id, populate) =>

@@ -29,9 +29,11 @@ const get = (req, res) => {
 const create = (req, res) => {
   const { body } = req;
 
-  const group = _.pick(body, 'name', 'description');
+  const { name, description, users } = _.pick(body, 'name', 'description', 'users');
 
-  return groupRepository.create(group)
+  const usersV = _.isArray(users) ? users : (users ? [users] : []);
+
+  return groupRepository.create({ name, description, users: usersV })
     .then(response => sendResponse(res, response))
     .catch(err => sendError(res, err, 500));
 };
@@ -51,7 +53,7 @@ const remove = (req, res) => {
   const { id } = req.params;
 
   return groupRepository.remove(id)
-    .then(response => sendResponse(res, { removed: true }))
+    .then(() => sendResponse(res, { removed: true }))
     .catch(err => sendError(res, err, 500));
 };
 

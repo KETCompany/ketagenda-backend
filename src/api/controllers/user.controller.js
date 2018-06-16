@@ -32,7 +32,7 @@ const create = (req, res) => {
   const { body } = req;
 
   const {
-    name, email, role, group, short,
+    name, email, role, groups, short,
   } = _.pick(body, ['name', 'email', 'role', 'groups', 'short']);
 
 
@@ -40,11 +40,11 @@ const create = (req, res) => {
     return sendErrorMessage(res, new Error('Email required', 400));
   }
 
-  const groups = _.isArray(group) ? group : group || [];
+  const groupsV = _.isArray(groups) ? groups : groups || [];
 
 
   return userRepository.create({
-    name, email, role, groups, short,
+    name, email, role, groups: groupsV, short,
   })
     .then(user => sendResponse(res, user))
     .catch(err => sendError(res, err, 400));
@@ -56,9 +56,17 @@ const update = (req, res) => {
 
   const user = _.pick(body, ['name', 'email', 'role', 'groups', 'short']);
 
-  userRepository.update(id, user)
+  return userRepository.update(id, user)
     .then(updatedUser => sendResponse(res, updatedUser))
     .catch(err => sendError(res, err, 400));
+};
+
+const remove = (req, res) => {
+  const { id } = req.params;
+
+  return userRepository.remove(id)
+    .then(() => sendResponse(res, { removed: true }))
+    .catch(err => sendError(res, err, 404));
 };
 
 
@@ -69,4 +77,5 @@ module.exports = {
   update,
   listTeachers,
   listStudents,
+  remove,
 };

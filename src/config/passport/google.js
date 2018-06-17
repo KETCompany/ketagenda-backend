@@ -30,7 +30,7 @@ module.exports = new GoogleStrategy(
               role: 'Student',
             });
           })
-          .then(user => cb(null, user))
+          .then(user => cb(null, user.toJSON()))
           .catch(err => cb(err, null));
       });
   }),

@@ -8,6 +8,7 @@ const userModel = new Schema({
   name: { type: String, required: true },
   email: { type: String, unique: true },
   short: { type: String },
+  googleId: { type: String },
   role: {
     type: String, enum: ['Admin', 'Student', 'Teacher'], required: true,
   },

@@ -10,16 +10,17 @@
 });
 
 const config = {
+  jwtSecret: process.env.JWT_SECRET,
   env: process.env.NODE_ENV,
   server: {
     port: Number(process.env.PORT),
     socketPort: Number(process.env.SOCKET_PORT),
   },
-  password: {
+  passport: {
     google: {
-      googleClientId: process.env.GOOGLE_CLIENT_ID,
-      googleClientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      googleCallbackUrl: process.env.GOOGLE_CALLBACK_URL,
+      clientID: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      callbackURL: process.env.GOOGLE_CALLBACK_URL,
     },
   },
   mongo: {

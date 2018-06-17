@@ -28,16 +28,19 @@ const getById = (id, populate) =>
     .populate(populate ? 'groups' : '')
     .then(notFoundHandler(id, 'User'));
 
+const getByGoogleId = id => User.findOne({ googleId: id }).lean();
+const getByEmail = email => User.findOne({ email });
+
 const create = (body) => {
   const user = new User(body);
 
   return user.save()
     .then((savedUser) => {
-      if (body.groups.length > 0) {
+      if (body.groups && body.groups.length > 0) {
         return Group.findByIdAndUpdate(body.groups[0], { $push: { users: user.id } })
           .then(() => savedUser);
       }
-      return savedUser;
+      return savedUser.lean();
     })
     .catch(mongoErrorHandler);
 };
@@ -60,4 +63,6 @@ module.exports = {
   listTeachers,
   update,
   remove,
+  getByGoogleId,
+  getByEmail,
 };

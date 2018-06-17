@@ -10,8 +10,6 @@ const list = (req, res) => {
   const { populate } = req.query;
   const { id } = req.params;
 
-  // const validatedQuery = _.pick(query, 'name', 'owner')
-
   // todo
   let promise;
 

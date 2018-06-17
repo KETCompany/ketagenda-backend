@@ -9,7 +9,9 @@ const list = (req, res) =>
     .then(users => sendResponse(res, users))
     .catch(err => sendError(res, err, 400));
 
-const self = (req, res) => sendResponse(res, req.user);
+const self = (req, res) => { 
+  return sendResponse(res, req.user);
+};
 
 const listStudents = (req, res) =>
   userRepository.listStudents()

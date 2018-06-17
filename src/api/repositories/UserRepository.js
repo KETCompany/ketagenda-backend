@@ -40,7 +40,7 @@ const create = (body) => {
         return Group.findByIdAndUpdate(body.groups[0], { $push: { users: user.id } })
           .then(() => savedUser);
       }
-      return savedUser.lean();
+      return savedUser;
     })
     .catch(mongoErrorHandler);
 };

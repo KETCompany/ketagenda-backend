@@ -25,9 +25,16 @@ authRouter.get(
         if (error) {
           res.send(error);
         }
+
         // generate a signed son web token with the contents of user object and return it in the response
         const token = jwt.sign(user, jwtSecret);
-        return res.json({ user, token });
+
+
+        // Send token back to client
+        res.statusCode = 302;
+        res.setHeader('Location', `${process.env.CLIENT_URL}/callback?token=${token}`);
+        res.setHeader('Content-Length', '0');
+        res.end();
       });
     })(req, res);
   },

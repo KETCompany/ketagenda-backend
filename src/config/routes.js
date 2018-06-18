@@ -15,7 +15,7 @@ module.exports = ((app, passport) => {
       return sendErrorMessage(res, info, 'User not authenticated', '...', 401);
     }
 
-    req.login(user, { session: false }, (error) => {
+    return req.login(user, { session: false }, (error) => {
       if (error) { sendError(res, error); }
       next();
     });

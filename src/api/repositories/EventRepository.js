@@ -29,6 +29,9 @@ const getById = (id, populate) =>
     .then(notFoundHandler(id, 'Event'))
     .catch(mongoErrorHandler);
 
+const getByGroupId = (id, populate) =>
+  Event.find({ groups: { $elemMatch: { $eq: id } } }).populate(populate ? 'bookings' : '');
+
 const remove = id =>
   Booking.findOne({ event: id })
     .then((booking) => {
@@ -107,4 +110,5 @@ module.exports = {
   remove,
   removeAll,
   update,
+  getByGroupId,
 };

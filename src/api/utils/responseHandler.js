@@ -2,7 +2,6 @@ const Logger = require('./logger');
 
 const sendResponse = (res, object) => {
   Logger.info('Response send with status \'200\'');
-  // Logger.info(`RESPONSE OBJECT: \n ${JSON.stringify(object, null, 2)}`);
   res.status(200);
   return res.json(object);
 };
@@ -38,4 +37,6 @@ const sendValidationError = (res, field, message, status) => {
   });
 };
 
-module.exports = { sendResponse, sendError, sendErrorMessage, sendValidationError };
+module.exports = {
+  sendResponse, sendError, sendErrorMessage, sendValidationError,
+};

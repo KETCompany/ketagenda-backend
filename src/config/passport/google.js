@@ -4,10 +4,11 @@ const { google } = require('../config').passport;
 const userRepository = require('../../api/repositories/UserRepository');
 
 const Logger = require('../../api/utils/logger');
+
 module.exports = new GoogleStrategy(
   { ...google },
-  ((accessToken, refreshToken, profile, cb) => {
-    return userRepository.getByGoogleId(profile.id)
+  ((accessToken, refreshToken, profile, cb) =>
+    userRepository.getByGoogleId(profile.id)
       .then((googleUser) => {
         if (googleUser) {
           Logger.info('Found user by googleID', googleUser);
@@ -32,6 +33,5 @@ module.exports = new GoogleStrategy(
           })
           .then(user => cb(null, user.toJSON()))
           .catch(err => cb(err, null));
-      });
-  }),
+      })),
 );

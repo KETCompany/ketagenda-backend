@@ -2,16 +2,18 @@ const { messaging } = require('firebase-admin');
 
 const Logger = require('./logger');
 
-const subscribe = (tokens, topic) =>
-  messaging().subscribeToTopic(tokens, `/topics/${topic}`)
-    .then((response) => {
-      // See the MessagingTopicManagementResponse reference documentation
-      // for the contents of response.
-      console.log('Successfully subscribed to topic:', response);
-    })
-    .catch((error) => {
-      console.log('Error subscribing to topic:', error);
-    });
+const subscribe = (tokens, topic) => {
+  if (tokens.length > 0) {
+    return messaging().subscribeToTopic(tokens, `/topics/${topic}`)
+      .then((response) => {
+        Logger.info('Successfully subscribed to topic:', response);
+      })
+      .catch((error) => {
+        Logger.error('Error subscribing to topic:', error);
+      });
+  }
+  return Promise.resolve();
+};
 
 const send = message =>
   messaging().send(message)
@@ -22,11 +24,12 @@ const send = message =>
       Logger.error(`Error sending message: ${error}`);
     });
 
-const sendToDevice = (token, title, body) => {
+const sendToDevice = (token, title, body, variant = 'info') => {
   const message = {
     data: {
       title,
       message: body,
+      variant,
     },
     token,
   };
@@ -34,11 +37,12 @@ const sendToDevice = (token, title, body) => {
   return send(message);
 };
 
-const sendToGroup = (topic, title, body) => {
+const sendToGroup = (topic, title, body, variant = 'info') => {
   const message = {
     data: {
       title,
       message: body,
+      variant,
     },
     topic: `/topics/${topic}`,
   };

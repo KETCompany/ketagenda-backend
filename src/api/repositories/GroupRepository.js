@@ -34,8 +34,9 @@ const create = (body) => {
     .catch(mongoErrorHandler);
 };
 
-const update = (id, body) =>
+const update = (id, body, populate) =>
   Group.findByIdAndUpdate(id, body, { new: true })
+    .populate(populate ? 'users' : '')
     .lean()
     .then(notFoundHandler(id, 'Group'))
     .catch(mongoErrorHandler);

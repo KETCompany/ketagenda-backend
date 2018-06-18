@@ -2,15 +2,19 @@ const express = require('express');
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
 
+const jwtSimple = require('jwt-simple');
+
+
 const { jwtSecret } = require('../../config/config');
 const Logger = require('../utils/logger');
 
 const authRouter = express.Router();
 
-const { auth } = require('firebase-admin');
+const userRepository = require('../repositories/UserRepository');
 
+// const { auth } = require('firebase-admin');
 
-const { sendErrorMessage, sendError } = require('../utils/responseHandler');
+const { sendErrorMessage, sendError, sendResponse } = require('../utils/responseHandler');
 
 authRouter.get('/google', passport.authenticate('google', { scope: ['email', 'profile'] }));
 authRouter.get(
@@ -47,15 +51,44 @@ authRouter.get(
 authRouter.get(
   '/firebase/callback',
   (req, res) => {
-    if (req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer') { // Authorization: Bearer g1jipjgi1ifjioj
-      // console.log(req.headers.authorization.split(' ')[1]);
-      return auth().verifyIdToken(req.headers.authorization.split(' ')[1])
-        .then((decodedToken) => {
-          console.log(decodedToken);
-          const { uid } = decodedToken;
-          // ...
-        }).catch(error =>
-          sendError(res, error));
+    if (req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer') {
+      try {
+        const decode = jwtSimple.decode(req.headers.authorization.split(' ')[1], '', true)
+
+        return userRepository.getByGoogleId(decode.sub)
+          .then((googleUser) => {
+            if (googleUser) {
+              Logger.info('Found user by googleID', googleUser);
+              return googleUser;
+            }
+            Logger.info('No user found by GoogleID');
+            return userRepository.getByEmail(decode.email)
+              .then((user) => {
+                if (user) {
+                  Logger.info('Found user by email', user);
+                  user.googleId = decode.sub;
+                  return user.save();
+                }
+                Logger.info('No user found by email... Creating new user');
+                return userRepository.create({
+                  googleId: decode.sub,
+                  short: decode.email.split('@')[0],
+                  name: decode.name,
+                  email: decode.email,
+                  role: 'Student',
+                });
+              });
+          })
+          .then((user) => {
+            const token = jwt.sign(user.toJSON(), jwtSecret);
+            Logger.info(token);
+            return sendResponse(res, {
+              jwtToken: token,
+            });
+          });
+      } catch (err) {
+        return sendError(res, err);
+      }
     }
     return sendError(res, new Error('NO USER'));
   },

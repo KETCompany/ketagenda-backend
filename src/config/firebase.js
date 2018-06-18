@@ -8,3 +8,4 @@ admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   databaseURL: 'https://ketagenda-96c0d.firebaseio.com',
 });
+// console.log(admin.name)

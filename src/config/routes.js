@@ -10,14 +10,13 @@ module.exports = ((app, passport) => {
   app.use('/auth', authRouter);
   app.use('/api', (req, res, next) => passport.authenticate('jwt', { session: false }, (err, user, info) => {
     if (err) { return next(err); }
-    if (!user && !info) {
-      return sendErrorMessage(res, new Error('No user'), 'No user', '...', 401);
-    }
-    if (info && info.message === 'No auth token') {
+
+    if ((info && info.message === 'No auth token') || !user) {
       return sendErrorMessage(res, info, 'User not authenticated', '...', 401);
     }
-    req.login(user, { session: false }, (err) => {
-      if (err) { sendError(res, err); }
+
+    req.login(user, { session: false }, (error) => {
+      if (error) { sendError(res, error); }
       next();
     });
   })(req, res, next), apiRouter);

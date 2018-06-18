@@ -5,7 +5,7 @@ const { User } = require('../../api/models/user.model');
 const JWTStrategy = passportJWT.Strategy;
 const ExtractJWT = passportJWT.ExtractJwt;
 
-const { jwtSecret } = require('../config');
+const { jwtSecret, passport } = require('../config');
 
 module.exports = new JWTStrategy(
   {

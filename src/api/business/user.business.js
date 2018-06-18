@@ -44,7 +44,7 @@ const update = (id, user) =>
     })
     .then(() => userRepository.getById(id))
     .then((newUser) => {
-      if (newUser.fmcToken) {
+      if (newUser.fmcToken && !(Object.keys(user).length === 1 && user.fmcToken)) {
         notificationHandler.sendToDevice(newUser.fmcToken, 'User', 'User has been updated');
       }
 

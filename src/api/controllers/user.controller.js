@@ -1,11 +1,9 @@
-// TODO userBuisness
 const _ = require('lodash');
 const userRepository = require('../repositories/UserRepository');
 
 const { sendResponse, sendError, sendErrorMessage } = require('../utils/responseHandler');
 
-
-const notificationHandler = require('../utils/notificationHandler');
+const userBusiness = require('../business/user.business');
 
 const list = (req, res) =>
   userRepository.list()
@@ -38,15 +36,13 @@ const create = (req, res) => {
     name, email, role, groups, short,
   } = _.pick(body, ['name', 'email', 'role', 'groups', 'short']);
 
-
   if (!email) {
-    return sendErrorMessage(res, new Error('Email required', 400));
+    return sendErrorMessage(res, new Error('Email required'), 'Validation error', 'Email is required', 400);
   }
 
   const groupsV = _.isArray(groups) ? groups : groups || [];
 
-
-  return userRepository.create({
+  return userBusiness.create({
     name, email, role, groups: groupsV, short,
   })
     .then(user => sendResponse(res, user))
@@ -59,24 +55,18 @@ const update = (req, res) => {
 
   const user = _.pick(body, ['name', 'email', 'role', 'groups', 'short', 'fmcToken']);
 
-  return userRepository.update(id, user)
-    .then((updatedUser) => {
-      if (updatedUser.fmcToken) {
-        notificationHandler.send(updatedUser.fmcToken, 'User', 'User has been updated');
-      }
-      sendResponse(res, updatedUser);
-    })
+  return userBusiness.update(id, user)
+    .then(newUser => sendResponse(res, newUser))
     .catch(err => sendError(res, err, 400));
 };
 
 const remove = (req, res) => {
   const { id } = req.params;
 
-  return userRepository.remove(id)
+  return userBusiness.remove(id)
     .then(() => sendResponse(res, { removed: true }))
     .catch(err => sendError(res, err, 404));
 };
-
 
 module.exports = {
   list,
@@ -85,5 +75,5 @@ module.exports = {
   update,
   listTeachers,
   listStudents,
-  remove
+  remove,
 };

@@ -2,13 +2,7 @@ const {
   User,
 } = require('../models/user.model');
 
-const {
-  Group,
-} = require('../models/group.model');
-
 const { mongoErrorHandler, notFoundHandler } = require('../utils/errorHandler');
-
-const Logger = require('../utils/logger');
 
 const list = () =>
   User.find({})
@@ -31,29 +25,29 @@ const getById = (id, populate) =>
 const getByGoogleId = id => User.findOne({ googleId: id }).lean();
 const getByEmail = email => User.findOne({ email });
 
+const addGroup = (id, groupId) =>
+  User.findByIdAndUpdate(id, { $push: { groups: groupId } });
+
+const removeGroup = (id, groupId) =>
+  User.findByIdAndUpdate(id, { $pull: { groups: groupId } });
+
 const create = (body) => {
   const user = new User(body);
 
   return user.save()
-    .then((savedUser) => {
-      if (body.groups && body.groups.length > 0) {
-        return Group.findByIdAndUpdate(body.groups[0], { $push: { users: user.id } })
-          .then(() => savedUser);
-      }
-      return savedUser;
-    })
     .catch(mongoErrorHandler);
 };
 
-const update = (id, body) =>
-  User.findByIdAndUpdate(id, body, { new: true }).lean()
+const update = (id, body, newReturn = false) =>
+  User.findByIdAndUpdate(id, body, { new: newReturn })
     .then(notFoundHandler(id, 'User'))
     .catch(mongoErrorHandler);
 
-const remove = id => {
-  // needs to delete in groupe aswell
-  return Promise.resolve(id);
-}
+const remove = id =>
+  User.findByIdAndRemove(id)
+    .then(notFoundHandler(id, 'User'))
+    .catch(mongoErrorHandler);
+
 
 module.exports = {
   list,
@@ -65,4 +59,6 @@ module.exports = {
   remove,
   getByGoogleId,
   getByEmail,
+  removeGroup,
+  addGroup,
 };

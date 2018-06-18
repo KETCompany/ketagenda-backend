@@ -19,6 +19,12 @@ const getById = (id, populate) =>
     .populate(populate ? 'users' : '', '-groups')
     .then(notFoundHandler(id, 'Group'));
 
+const addUser = (id, userId) =>
+  Group.findByIdAndUpdate(id, { $push: { users: userId } });
+
+const removeUser = (id, userId) =>
+  Group.findByIdAndUpdate(id, { $pull: { users: userId } });
+
 const create = (body) => {
   const group = new Group(body);
 
@@ -61,4 +67,6 @@ module.exports = {
   update,
   remove,
   populate,
+  addUser,
+  removeUser,
 };

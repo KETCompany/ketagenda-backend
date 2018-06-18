@@ -37,8 +37,9 @@ const create = (req, res) => {
   const { body } = req;
 
   const event = _.pick(body, 'name', 'description', 'owner', 'groups', 'subscribers', 'bookings');
-  if (!event.title) {
-    return sendValidationError(res, 'title', 'Title is required');
+
+  if (!event.name) {
+    return sendValidationError(res, 'name', 'Name is required');
   }
 
   return eventRepository.create(event)

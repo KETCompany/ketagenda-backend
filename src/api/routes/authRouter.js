@@ -77,10 +77,10 @@ authRouter.get(
                   email: decode.email,
                   role: 'Student',
                 });
-              });
+              }).then(user => user.toJSON());
           })
           .then((user) => {
-            const token = jwt.sign(user.toJSON(), jwtSecret);
+            const token = jwt.sign(user, jwtSecret);
             Logger.info(token);
             return sendResponse(res, {
               jwtToken: token,

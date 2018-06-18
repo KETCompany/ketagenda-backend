@@ -9,6 +9,7 @@ const userModel = new Schema({
   email: { type: String, unique: true },
   short: { type: String },
   googleId: { type: String },
+  fmcToken: { type: String },
   role: {
     type: String, enum: ['Admin', 'Student', 'Teacher'], required: true,
   },
@@ -23,7 +24,6 @@ const userModel = new Schema({
     },
   }],
   events: [{ type: Schema.Types.ObjectId, ref: 'events' }],
-
   updated: Array,
   createdAt: Date,
   updatedAt: Date,

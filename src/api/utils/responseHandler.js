@@ -25,6 +25,17 @@ const sendErrorMessage = (res, error, title, message, status) => {
     title,
     description: message,
   });
-}
+};
 
-module.exports = { sendResponse, sendError, sendErrorMessage };
+const sendValidationError = (res, field, message, status) => {
+  const title = `Validation error: ${field}`;
+  Logger.error(`Validation error: ${message}`);
+
+  res.status(status || 500);
+  return res.send({
+    title,
+    description: message,
+  });
+};
+
+module.exports = { sendResponse, sendError, sendErrorMessage, sendValidationError };

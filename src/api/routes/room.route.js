@@ -10,6 +10,7 @@ router.post('/', controller.post);
 router.get('/infoscreen', controller.getByInfoScreen);
 
 router.get('/:id', controller.get);
+
 router.put('/:id', controller.update);
 router.delete('/:id', controller.remove);
 

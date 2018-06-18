@@ -26,7 +26,8 @@ const create = (body) => {
     .then((savedGroup) => {
       if (savedGroup.users) {
         return Promise.all(savedGroup.users.map(id =>
-          User.findByIdAndUpdate(id, { $push: { groups: savedGroup.id } })));
+          User.findByIdAndUpdate(id, { $push: { groups: savedGroup.id } })))
+          .then(users => ({ ...savedGroup.toJSON(), users }));
       }
       return savedGroup;
     })
@@ -50,10 +51,13 @@ const remove = id =>
     .then(notFoundHandler(id, 'Group'))
     .catch(mongoErrorHandler);
 
+const populate = (obj, key) => Group.populate(obj, key);
+
 module.exports = {
   list,
   getById,
   create,
   update,
   remove,
+  populate,
 };

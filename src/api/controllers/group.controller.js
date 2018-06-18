@@ -3,6 +3,7 @@ const groupRepository = require('../repositories/GroupRepository');
 // const groupBuisness = require('../business/group.business');
 
 const { sendResponse, sendErrorMessage, sendError } = require('../utils/responseHandler');
+const notificationHandler = require('../utils/notificationHandler');
 
 const list = (req, res) => {
   const { query } = req;
@@ -34,7 +35,13 @@ const create = (req, res) => {
   const usersV = _.isArray(users) ? users : (users ? [users] : []);
 
   return groupRepository.create({ name, description, users: usersV })
-    .then(response => sendResponse(res, response))
+    .then((response) => {
+      const tokens = response.users.filter(user => user.fmcToken !== '').map(user => user.fmcToken);
+      console.log(response._id);
+      return notificationHandler.subscribe(tokens, response._id)
+        .then(() => notificationHandler.sendToGroup(response._id, `Added to ${response.name}`, `Added to ${response.name}`))
+        .then(() => sendResponse(res, response));
+    })
     .catch(err => sendError(res, err, 500));
 };
 

@@ -3,8 +3,10 @@ const passport = require('passport');
 const jwt = require('jsonwebtoken');
 
 const { jwtSecret } = require('../../config/config');
+const Logger = require('../utils/logger');
 
 const authRouter = express.Router();
+
 
 const { sendErrorMessage } = require('../utils/responseHandler');
 
@@ -27,9 +29,10 @@ authRouter.get(
         }
 
         // generate a signed son web token with the contents of user object and return it in the response
+        
         const token = jwt.sign(user, jwtSecret);
 
-
+        Logger.info(token);
         // Send token back to client
         res.statusCode = 302;
         res.setHeader('Location', `${process.env.CLIENT_URL}/callback?token=${token}`);

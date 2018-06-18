@@ -2,7 +2,7 @@ const _ = require('lodash');
 const eventBusiness = require('../business/event.business');
 const eventRepository = require('../repositories/EventRepository');
 
-const { sendResponse, sendError, sendErrorMessage } = require('../utils/responseHandler');
+const { sendResponse, sendError, sendErrorMessage, sendValidationError } = require('../utils/responseHandler');
 const Logger = require('../utils/logger');
 
 const list = (req, res) => {
@@ -37,6 +37,9 @@ const create = (req, res) => {
   const { body } = req;
 
   const event = _.pick(body, 'name', 'description', 'owner', 'groups', 'subscribers', 'bookings');
+  if (!event.title) {
+    return sendValidationError(res, 'title', 'Title is required');
+  }
 
   return eventRepository.create(event)
     .then(savedEvent => sendResponse(res, savedEvent))

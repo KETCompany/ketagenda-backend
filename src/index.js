@@ -13,10 +13,13 @@ const { sendErrorMessage } = require('./api/utils/responseHandler');
 
 const { port } = config.server;
 
+
 const app = express();
 
 require('./config/passport')(passport, app);
 require('./config/express')(app);
+
+require('./config/firebase');
 
 app.all('*', (req, res, next) => {
   Logger.info(`${req.method} - ${req.url}`);

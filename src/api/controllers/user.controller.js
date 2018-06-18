@@ -4,14 +4,13 @@ const userRepository = require('../repositories/UserRepository');
 
 const { sendResponse, sendError, sendErrorMessage } = require('../utils/responseHandler');
 
+
+const notificationHandler = require('../utils/notificationHandler');
+
 const list = (req, res) =>
   userRepository.list()
     .then(users => sendResponse(res, users))
     .catch(err => sendError(res, err, 400));
-
-const self = (req, res) => { 
-  return sendResponse(res, req.user);
-};
 
 const listStudents = (req, res) =>
   userRepository.listStudents()
@@ -58,10 +57,15 @@ const update = (req, res) => {
   const { id } = req.params;
   const { body } = req;
 
-  const user = _.pick(body, ['name', 'email', 'role', 'groups', 'short']);
+  const user = _.pick(body, ['name', 'email', 'role', 'groups', 'short', 'fmcToken']);
 
   return userRepository.update(id, user)
-    .then(updatedUser => sendResponse(res, updatedUser))
+    .then((updatedUser) => {
+      if (updatedUser.fmcToken) {
+        notificationHandler.send(updatedUser.fmcToken, 'User', 'User has been updated');
+      }
+      sendResponse(res, updatedUser);
+    })
     .catch(err => sendError(res, err, 400));
 };
 
@@ -81,6 +85,5 @@ module.exports = {
   update,
   listTeachers,
   listStudents,
-  remove,
-  self,
+  remove
 };

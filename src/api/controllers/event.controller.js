@@ -2,7 +2,7 @@ const _ = require('lodash');
 const eventBusiness = require('../business/event.business');
 const eventRepository = require('../repositories/EventRepository');
 
-const { sendResponse, sendError, sendErrorMessage, sendValidationError } = require('../utils/responseHandler');
+const responseHandler = require('../utils/responseHandler');
 const Logger = require('../utils/logger');
 
 const list = (req, res) => {
@@ -19,9 +19,10 @@ const list = (req, res) => {
     promise = eventBusiness.listEvents(populate !== undefined);
   }
 
+
   return promise
-    .then(response => sendResponse(res, response) && Logger.info(`Event count: ${response.length}`))
-    .catch(err => sendError(res, err));
+    .then(response => responseHandler.sendResponse(res, response) && Logger.info(`Event count: ${response.length}`))
+    .catch(err => responseHandler.sendError(res, err));
 };
 
 const get = (req, res) => {
@@ -29,8 +30,8 @@ const get = (req, res) => {
   const { populate } = req.query;
 
   return eventRepository.getById(id, populate !== undefined)
-    .then(user => sendResponse(res, user))
-    .catch(err => sendErrorMessage(res, err, 'Cannot find event', `Event with id: ${id} not found.`, 404));
+    .then(user => responseHandler.sendResponse(res, user))
+    .catch(err => responseHandler.sendErrorMessage(res, err, 'Cannot find event', `Event with id: ${id} not found.`, 404));
 };
 
 const create = (req, res) => {
@@ -39,12 +40,12 @@ const create = (req, res) => {
   const event = _.pick(body, 'name', 'description', 'owner', 'groups', 'subscribers', 'bookings');
 
   if (!event.name) {
-    return sendValidationError(res, 'name', 'Name is required');
+    return responseHandler.sendValidationError(res, 'name', 'Name is required');
   }
 
   return eventRepository.create(event)
-    .then(savedEvent => sendResponse(res, savedEvent))
-    .catch(err => sendError(res, err, 400));
+    .then(savedEvent => responseHandler.sendResponse(res, savedEvent))
+    .catch(err => responseHandler.sendError(res, err, 400));
 };
 
 const update = (req, res) => {
@@ -54,8 +55,8 @@ const update = (req, res) => {
   const event = _.pick(body, 'name', 'description');
 
   return eventRepository.update(id, event)
-    .then(updatedEvent => sendResponse(res, updatedEvent))
-    .catch(err => sendError(res, err, 400));
+    .then(updatedEvent => responseHandler.sendResponse(res, updatedEvent))
+    .catch(err => responseHandler.sendError(res, err, 400));
 };
 
 
@@ -65,13 +66,13 @@ const remove = (req, res) => {
 
   if (force !== undefined) {
     return eventRepository.removeAll(id)
-      .then(() => sendResponse(res, { remove: true }))
-      .catch(err => sendError(res, err));
+      .then(() => responseHandler.sendResponse(res, { remove: true }))
+      .catch(err => responseHandler.sendError(res, err));
   }
 
   return eventRepository.remove(id)
-    .then(() => sendResponse(res, { remove: true }))
-    .catch(err => sendError(res, err));
+    .then(() => responseHandler.sendResponse(res, { remove: true }))
+    .catch(err => responseHandler.sendError(res, err));
 };
 
 module.exports = {

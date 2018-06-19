@@ -8,7 +8,12 @@ module.exports = ((app, passport) => {
     res.json({ hello: 'world' });
   });
   app.use('/auth', authRouter);
-  app.get('/api/rooms/infoscreen', roomController.getByInfoScreen);
+  
+  app.get('/api/infoscreen', roomController.getByInfoScreen);
+  app.put('/api/infoscreen/:id', roomController.update);
+
+  app.get('/api/infoscreen/rooms', roomController.list);
+
   app.use('/api', (req, res, next) => passport.authenticate('jwt', { session: false }, (err, user, info) => {
     if (err) { return next(err); }
 

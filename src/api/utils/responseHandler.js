@@ -37,9 +37,6 @@ const sendValidationError = (res, field, message, status) => {
   });
 };
 
-
-module.exports.sendResponse = sendResponse;
-
 module.exports = {
   sendResponse, sendError, sendErrorMessage, sendValidationError,
 };

@@ -12,10 +12,16 @@ const groupSchema = new Schema({
   updatedAt: Date,
 }, {
   strict: 'throw',
+  timestamps: true,
   useNestedStrict: true,
 });
 
-const Group = mongoose.model('groups', groupSchema);
+let Group;
+try {
+  Group = mongoose.model('groups');
+} catch (e) {
+  Group = mongoose.model('groups', groupSchema);
+}
 
 module.exports = {
   Group,

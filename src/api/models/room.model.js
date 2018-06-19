@@ -8,15 +8,17 @@ const { Schema } = mongoose;
 const roomSchema = new Schema({
   number: Number,
   department: String,
+  location: String,
   floor: Number,
   type: String,
   description: String,
   value: Number,
-  name: String,
+  name: { type: String, unique: true },
   displayKeys: [String],
 }, {
   strict: 'throw',
   useNestedStrict: true,
+  timestamps: true,
 });
 
 roomSchema.virtual('bookings', {
@@ -28,7 +30,13 @@ roomSchema.virtual('bookings', {
 roomSchema.set('toObject', { virtuals: true });
 roomSchema.set('toJSON', { virtuals: true });
 
-const Room = mongoose.model('rooms', roomSchema);
+
+let Room;
+try {
+  Room = mongoose.model('rooms');
+} catch (e) {
+  Room = mongoose.model('rooms', roomSchema);
+}
 
 const getSearchValues = (query) => {
   if (query) {
@@ -64,27 +72,7 @@ const getSearchValues = (query) => {
       }
     }
 
-    if (query.time) {
-      searchValues.time = moment.unix(query.time).toDate();
-    }
-
-    if (query.sTime) {
-      searchValues.sTime = moment.unix(query.sTime).toDate();
-    }
-
-    if (query.eTime) {
-      searchValues.eTime = moment.unix(query.eTime).toDate();
-    }
-
-    if (!searchValues.week) {
-      if (query.week) {
-        searchValues.week = _.toNumber(query.week);
-      } else {
-        searchValues.week = moment().week();
-      }
-    }
-
-    return { ...searchValues, ..._.pick(query, 'type', 'name', 'group', 'tutor', 'subject') };
+    return { ...searchValues, ..._.pick(query, 'type', 'name') };
   }
   return {};
 };

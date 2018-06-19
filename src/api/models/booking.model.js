@@ -58,9 +58,15 @@ const bookingSchema = new Schema({
 }, {
   strict: 'throw',
   useNestedStrict: true,
+  timestamps: true,
 });
 
-const Booking = mongoose.model('bookings', bookingSchema);
+let Booking;
+try {
+  Booking = mongoose.model('bookings');
+} catch (e) {
+  Booking = mongoose.model('bookings', bookingSchema);
+}
 
 module.exports = {
   Booking,

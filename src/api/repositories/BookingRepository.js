@@ -6,6 +6,7 @@ const moment = require('moment');
 
 const list = () =>
   Booking.find({})
+    .sort({ createdAt: -1 })
     .collation({ locale: 'en', strength: 2 });
 
 const getById = (id, populate) =>

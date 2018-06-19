@@ -1,9 +1,23 @@
 const apiRouter = require('../api/routes/apiRouter');
+const authRouter = require('../api/routes/authRouter');
 
-module.exports = ((app) => {
+const { sendErrorMessage, sendError } = require('../api/utils/responseHandler');
+
+module.exports = ((app, passport) => {
   app.get('/', (req, res) => {
     res.json({ hello: 'world' });
   });
+  app.use('/auth', authRouter);
+  app.use('/api', (req, res, next) => passport.authenticate('jwt', { session: false }, (err, user, info) => {
+    if (err) { return next(err); }
 
-  app.use('/api', apiRouter);
+    if ((info && info.message === 'No auth token') || !user) {
+      return sendErrorMessage(res, info, 'User not authenticated', '...', 401);
+    }
+
+    return req.login(user, { session: false }, (error) => {
+      if (error) { sendError(res, error); }
+      next();
+    });
+  })(req, res, next), apiRouter);
 });

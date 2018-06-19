@@ -5,10 +5,13 @@ const { Group } = require('./group.model');
 const { Schema } = mongoose;
 
 const userModel = new Schema({
-  name: String,
+  name: { type: String, required: true },
   email: { type: String, unique: true },
+  short: { type: String },
+  googleId: { type: String },
+  fmcToken: { type: String },
   role: {
-    type: String, enum: ['Admin', 'Student', 'Teacher'],
+    type: String, enum: ['Admin', 'Student', 'Teacher'], required: true,
   },
   groups: [{
     type: Schema.Types.ObjectId,
@@ -21,16 +24,22 @@ const userModel = new Schema({
     },
   }],
   events: [{ type: Schema.Types.ObjectId, ref: 'events' }],
-
   updated: Array,
   createdAt: Date,
   updatedAt: Date,
 }, {
   strict: 'throw',
   useNestedStrict: true,
+  timestamps: true,
 });
 
-const User = mongoose.model('users', userModel);
+let User;
+try {
+  User = mongoose.model('users');
+} catch (e) {
+  User = mongoose.model('users', userModel);
+}
+
 
 module.exports = {
   User,

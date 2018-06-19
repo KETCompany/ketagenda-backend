@@ -2,18 +2,16 @@ const {
   User,
 } = require('../models/user.model');
 
-const {
-  Group,
-} = require('../models/group.model');
-
-const Logger = require('../utils/logger');
+const { mongoErrorHandler, notFoundHandler } = require('../utils/errorHandler');
 
 const list = () =>
   User.find({})
+    .sort({ createdAt: -1 })
     .collation({ locale: 'en', strength: 2 });
 
 const listRole = role =>
   User.find({ role })
+    .sort({ createdAt: -1 })
     .collation({ locale: 'en', strength: 2 });
 
 const listStudents = () => listRole('Student');
@@ -22,39 +20,34 @@ const listTeachers = () => listRole('Teacher');
 const getById = (id, populate) =>
   User.findById(id)
     .populate(populate ? 'groups' : '')
-    .then((user) => {
-      if (user) {
-        return user;
-      }
+    .then(notFoundHandler(id, 'User'));
 
-      throw new Error(`User ${id} not found`);
-    });
+const getByGoogleId = id => User.findOne({ googleId: id }).lean();
+const getByEmail = email => User.findOne({ email });
+
+const addGroup = (id, groupId) =>
+  User.findByIdAndUpdate(id, { $push: { groups: groupId } });
+
+const removeGroup = (id, groupId) =>
+  User.findByIdAndUpdate(id, { $pull: { groups: groupId } });
 
 const create = (body) => {
   const user = new User(body);
 
   return user.save()
-    .then((savedUser) => {
-      if (body.groups.length > 0) {
-        return Group.findByIdAndUpdate(body.groups[0], { $push: { users: user.id } })
-          .then(() => savedUser);
-      }
-
-      return savedUser;
-    })
-    .catch((err) => {
-      Logger.error(`${err} - ${JSON.stringify(body)}`);
-      if (err.name === 'ValidationError') {
-        throw new Error(err.message);
-      }
-
-      if (err.code === 11000) {
-        throw new Error('There was a duplicate key error');
-      }
-
-      throw err;
-    });
+    .catch(mongoErrorHandler);
 };
+
+const update = (id, body, newReturn = false) =>
+  User.findByIdAndUpdate(id, body, { new: newReturn })
+    .then(notFoundHandler(id, 'User'))
+    .catch(mongoErrorHandler);
+
+const remove = id =>
+  User.findByIdAndRemove(id)
+    .then(notFoundHandler(id, 'User'))
+    .catch(mongoErrorHandler);
+
 
 module.exports = {
   list,
@@ -62,4 +55,10 @@ module.exports = {
   create,
   listStudents,
   listTeachers,
+  update,
+  remove,
+  getByGoogleId,
+  getByEmail,
+  removeGroup,
+  addGroup,
 };

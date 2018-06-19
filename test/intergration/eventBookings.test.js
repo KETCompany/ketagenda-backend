@@ -45,13 +45,13 @@ describe('eventBookings test', () => {
         .then((event) => {
           createdEventId = event._id;
           assert(event.name === createEvent.name);
-          assert(event.description === createEvent.description);
+          return assert(event.description === createEvent.description);
         }));
 
     it('should remove the event', () => {
       return eventRepository.remove(createdEventId)
         .then((removed) => {
-          assert(removed);
+          return assert(removed);
         });
     });
   });
@@ -79,7 +79,7 @@ describe('eventBookings test', () => {
           bookingsIds = event.bookings;
           assert(event.name === createEvent.name);
           assert(event.description === createEvent.description);
-          assert(event.bookings.length === 1);
+          return assert(event.bookings.length === 1);
         }));
 
     it('should give a error because has bookings the event', () => {
@@ -120,7 +120,7 @@ describe('eventBookings test', () => {
         .then((event) => {
           createdEventId = event._id;
           assert(event.name === createEvent.name);
-          assert(event.description === createEvent.description);
+          return assert(event.description === createEvent.description);
         }));
 
 
@@ -172,7 +172,7 @@ describe('eventBookings test', () => {
           createdEventId = event._id;
           bookingsIds = event.bookings;
           assert(event.name === createEvent.name);
-          assert(event.description === createEvent.description);
+          return assert(event.description === createEvent.description);
         }));
 
 
@@ -223,7 +223,7 @@ describe('eventBookings test', () => {
         .then((event) => {
           createdEventId = event._id;
           assert(event.name === createEvent.name);
-          assert(event.description === createEvent.description);
+          return assert(event.description === createEvent.description);
         }));
 
 
@@ -269,13 +269,13 @@ describe('eventBookings test', () => {
       description: 'TEST-event-description',
       bookings: [],
     };
-
+    
     it('should create a event', () =>
       business.create(createEvent)
         .then((event) => {
           createdEventId = event._id;
           assert(event.name === createEvent.name);
-          assert(event.description === createEvent.description);
+          return assert(event.description === createEvent.description);
         }));
 
 
@@ -290,7 +290,7 @@ describe('eventBookings test', () => {
     it('should be no bookings for this event', () => {
       bookingRepository.getByEventId(createdEventId)
         .then(res =>
-          assert(res.length === 0))
+          assert(res.length === 0));
     });
 
     it('should not throw a error', () => {
@@ -339,27 +339,65 @@ describe('eventBookings test', () => {
         .then((event) => {
           createdEventId = event._id;
           assert(event.name === createEvent.name);
-          assert(event.description === createEvent.description);
+          return assert(event.description === createEvent.description);
         }));
 
 
     it('should update a event', () =>
       business.update(createdEventId, createEventUpdate)
         .then((updatedEvent) => {
-          assert(updatedEvent.name === createEventUpdate.name);
-          assert(updatedEvent.bookings.length === 2);
-          return assert(updatedEvent.description === createEventUpdate.description);
+          assert(updatedEvent.name === createEventUpdate.name, 'name should be the same');
+          return assert(updatedEvent.description === createEventUpdate.description, 'description should be updated');
         }));
 
-    it('should remove the bookings', () => {
-      return bookingRepository.remove(createdEventId)
+    it('should remove the bookings', () =>
+      bookingRepository.remove(createdEventId)
         .then((res) => {
-          return assert(res.n === 2);
-        });
-    });
+          return assert(res);
+        }));
 
     it('should not throw a error', () => {
       return eventRepository.remove(createdEventId)
+        .then(suc =>
+          assert(suc))
+    });
+  });
+
+
+  describe('event creation -> twice will fail', () => {
+    let createdEventIdFirst = '';
+    let createdEventIdSec = '';
+
+    let bookingIds = [];
+
+    const createEvent = {
+      name: 'TEST-event',
+      description: 'TEST-event-description',
+      bookings: [
+        {
+          start: 1628169256,
+          end: 1628169556,
+          room: '5b28e483c9c077034f5987fb',
+        },
+      ],
+    };
+
+
+    it('should create a error', () =>
+      business.create(createEvent)
+        .then((event) => {
+          createdEventIdFirst = event._id;
+          return business.create(createEvent);
+        }).catch(err => assert(err)));
+
+    it('should remove the bookings', () =>
+      bookingRepository.remove(createdEventIdFirst)
+        .then((res) => {
+          return assert(res);
+        }));
+
+    it('should not throw a error', () => {
+      return eventRepository.remove(createdEventIdFirst)
         .then(suc =>
           assert(suc));
     });

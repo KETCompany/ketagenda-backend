@@ -117,6 +117,96 @@ describe('userGroup tests', () => {
     })
   });
 
+  describe('Group create add user', () => {
+    let createGroupId = '';
+    let createdUserId = '';
+
+    const createUserObject = {
+      name: 'test-Daan',
+      email: 'test-Daan_donn@hotmail.com',
+      role: 'Student',
+      short: 'test-d',
+    }
+
+    const createGroupObject = {
+      name: 'test-Group',
+      description: 'test-group-description',
+    };
+
+    it('should create a user', () => {
+      return business.create(createUserObject)
+        .then((user) => {
+          createdUserId = user._id;
+        });
+    })
+
+    it('should create a group', () => {
+      return groupRepository.create(createGroupObject)
+        .then((group) => {
+          createGroupId = group._id;
+          assert(group.name === createGroupObject.name);
+          return assert(group.description === createGroupObject.description);
+        });
+    });
+
+    it('should add user to group', () => {
+      return groupRepository.addUser(createGroupId, createdUserId)
+        .then((res) => {
+          return Promise.all([
+            groupRepository.getById(createGroupId),
+            business.update(createdUserId, { groups: [createGroupId] })
+          ]);
+        })
+        .then(([gr, usr]) => {
+          assert(gr.users.length === 1, 'group users length === 1');
+          return assert(usr.groups.length === 1, 'user groups length === 1');
+        });
+    });
+
+    it('should remove user from group', () => {
+      return groupRepository.removeUser(createGroupId, createdUserId)
+        .then((res) => {
+          return Promise.all([
+            groupRepository.getById(createGroupId),
+            business.update(createdUserId, { groups: [] })
+          ]);
+        })
+        .then(([gr, usr]) => {
+          assert(gr.users.length === 0)
+          return assert(usr.groups.length === 0)
+        });
+    });
+
+    it('should add user to group', () => {
+      return groupRepository.update(createGroupId, { ...createGroupObject, users: [createdUserId]})
+        .then((res) => {
+          return groupRepository.getById(createGroupId);
+        })
+        .then((res) => assert(res.users.length === 1));
+    });
+
+    it('should remove user from group', () => {
+      return groupRepository.update(createGroupId, { ...createGroupObject, users: []})
+        .then((res) => {
+          return groupRepository.getById(createGroupId);
+        })
+        .then((res) => assert(res.users.length === 0));
+    });
+
+    it('should remove the group', () => {
+      return groupRepository.remove(createGroupId)
+        .then((removed) => {
+          return assert(removed)
+        })
+    });
+    it('should remove the user', () => {
+      return business.remove(createdUserId)
+        .then((removed) => {
+          assert(removed)
+        })
+    })
+  });
+
 
 
   after(() => {

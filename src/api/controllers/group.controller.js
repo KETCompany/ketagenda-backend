@@ -25,12 +25,16 @@ const get = (req, res) => {
 
   return groupRepository.getById(id, populate !== undefined)
     .then((group) => {
-      return EventRepository.getByGroupId(group.id, populate !== undefined)
-        .then((events) => {
-          group.events = events;
+      if (populate !== undefined) {
+        return EventRepository.getByGroupId(group.id, populate !== undefined)
+          .then((events) => {
+            const groupWithEvents = group.toJSON();
 
-          return group;
-        });
+            groupWithEvents.events = events;
+            return groupWithEvents;
+          });
+      }
+      return group;
     })
     .then(group => sendResponse(res, group))
     .catch(err => sendErrorMessage(res, err, 'Cannot find group', `Group with id: ${id} not found.`, 404));
@@ -99,7 +103,6 @@ const subscribe = (req, res) => {
   const { body } = req;
 
   const { id } = _.pick(body, 'id');
-
 }
 
 module.exports = {

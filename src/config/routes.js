@@ -1,6 +1,6 @@
 const apiRouter = require('../api/routes/apiRouter');
 const authRouter = require('../api/routes/authRouter');
-
+const roomController = require('../api/controllers/room.controller');
 const { sendErrorMessage, sendError } = require('../api/utils/responseHandler');
 
 module.exports = ((app, passport) => {
@@ -8,6 +8,7 @@ module.exports = ((app, passport) => {
     res.json({ hello: 'world' });
   });
   app.use('/auth', authRouter);
+  app.get('/api/rooms/infoscreen', roomController.getByInfoScreen);
   app.use('/api', (req, res, next) => passport.authenticate('jwt', { session: false }, (err, user, info) => {
     if (err) { return next(err); }
 

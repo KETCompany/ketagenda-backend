@@ -42,7 +42,7 @@ const create = (req, res) => {
     return responseHandler.sendValidationError(res, 'name', 'Name is required');
   }
 
-  if (event.bookings.length > 0 && !event.bookings.every(booking => booking.room !== '')) {
+  if (event.bookings.length > 0 && _.isArray(event.bookings) && !event.bookings.every(booking => booking.room !== '')) {
     if (!event.room || event.room === '') {
       return responseHandler.sendValidationError(res, 'Room', 'Room is required');
     }

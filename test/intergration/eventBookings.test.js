@@ -15,19 +15,34 @@ const business = require('../../src/api/business/event.business');
 
 const eventRepository = require('../../src/api/repositories/EventRepository');
 const bookingRepository = require('../../src/api/repositories/BookingRepository');
+const roomRepository = require('../../src/api/repositories/RoomRepository');
 
 const notificationHandler = require('../../src/api/utils/notificationHandler');
 
 const Logger = require('../../src/api/utils/logger');
 
+let roomId = '';
 describe('eventBookings test', () => {
-  before(() => {
+  before((done) => {
     sinon
       .stub(notificationHandler, 'sendToDevice')
       .callsFake(() => { });
     sinon
       .stub(Logger, 'info')
       .callsFake(() => {
+      });
+
+    roomRepository.create({
+      department: 'CMI',
+      floor: '4',
+      type: 'Scret',
+      description: 'dasjdas',
+      name: 'TESTING ROOM SECRET',
+      number: 1234,
+    })
+      .then((room) => {
+        roomId = room._id;
+        done();
       });
   });
 
@@ -59,18 +74,21 @@ describe('eventBookings test', () => {
   describe('event creation with bookings', () => {
     let createdEventId = '';
     let bookingsIds = [];
+    let createEvent;
 
-    const createEvent = {
-      name: 'TEST-event',
-      description: 'TEST-event-description',
-      bookings: [
-        {
-          start: 1628169256,
-          end: 1628169556,
-          room: '5b28e483c9c077034f5987fb',
-        },
-      ],
-    };
+    before(() => {
+      createEvent = {
+        name: 'TEST-event',
+        description: 'TEST-event-description',
+        bookings: [
+          {
+            start: 1628169256,
+            end: 1628169556,
+            room: roomId,
+          },
+        ],
+      };
+    });
 
     it('should create a event', () =>
       business.create(createEvent)
@@ -80,7 +98,7 @@ describe('eventBookings test', () => {
           assert(event.name === createEvent.name);
           assert(event.description === createEvent.description);
           return assert(event.bookings.length === 1);
-        }));
+        }).catch(err => console.log(err)));
 
     it('should give a error because has bookings the event', () => {
       return eventRepository.remove(createdEventId)
@@ -106,14 +124,19 @@ describe('eventBookings test', () => {
   describe('event creation -> update', () => {
     let createdEventId = '';
 
-    const createEvent = {
-      name: 'TEST-event',
-      description: 'TEST-event-description',
-    };
-    const createEventUpdate = {
-      name: 'TEST-event-update',
-      description: 'TEST-event-description',
-    };
+    let createEvent;
+    let createEventUpdate;
+
+    before(() => {
+      createEventUpdate = {
+        name: 'TEST-event-update',
+        description: 'TEST-event-description',
+      };
+      createEvent = {
+        name: 'TEST-event',
+        description: 'TEST-event-description',
+      };
+    });
 
     it('should create a event', () =>
       business.create(createEvent)
@@ -141,30 +164,34 @@ describe('eventBookings test', () => {
 
   describe('event creation -> update more bookings', () => {
     let createdEventId = '';
+    let createEvent;
+    let createEventUpdate;
+    let bookingsIds = [];
 
-    const createEvent = {
-      name: 'TEST-event',
-      description: 'TEST-event-description',
-      bookings: [
-        {
-          start: 1628169257,
-          end: 1628169558,
-          room: '5b28e483c9c077034f5987fb',
-        },
-      ],
-    };
-
-    const createEventUpdate = {
-      name: 'TEST-event-update',
-      description: 'TEST-event-description',
-      bookings: [
-        {
-          start: 1628169256,
-          end: 1628169556,
-          room: '5b28e483c9c077034f5987fb',
-        },
-      ],
-    };
+    before(() => {
+      createEventUpdate = {
+        name: 'TEST-event-update',
+        description: 'TEST-event-description',
+        bookings: [
+          {
+            start: 1628169256,
+            end: 1628169556,
+            room: roomId,
+          },
+        ],
+      };
+      createEvent = {
+        name: 'TEST-event',
+        description: 'TEST-event-description',
+        bookings: [
+          {
+            start: 1628169257,
+            end: 1628169558,
+            room: roomId,
+          },
+        ],
+      };
+    });
 
     it('should create a event', () =>
       business.create(createEvent)
@@ -200,23 +227,26 @@ describe('eventBookings test', () => {
 
   describe('event creation -> update if no bookings', () => {
     let createdEventId = '';
+    let createEvent;
+    let createEventUpdate;
 
-    const createEvent = {
-      name: 'TEST-event',
-      description: 'TEST-event-description',
-    };
-
-    const createEventUpdate = {
-      name: 'TEST-event-update',
-      description: 'TEST-event-description',
-      bookings: [
-        {
-          start: 1628169256,
-          end: 1628169556,
-          room: '5b28e483c9c077034f5987fb',
-        },
-      ],
-    };
+    before(() => {
+      createEventUpdate = {
+        name: 'TEST-event-update',
+        description: 'TEST-event-description',
+        bookings: [
+          {
+            start: 1628169256,
+            end: 1628169556,
+            room: roomId,
+          },
+        ],
+      };
+      createEvent = {
+        name: 'TEST-event',
+        description: 'TEST-event-description',
+      };
+    });
 
     it('should create a event', () =>
       business.create(createEvent)
@@ -251,24 +281,27 @@ describe('eventBookings test', () => {
 
   describe('event creation -> update to no bookings', () => {
     let createdEventId = '';
+    let createEvent;
+    let createEventUpdate;
 
-    const createEvent = {
-      name: 'TEST-event',
-      description: 'TEST-event-description',
-      bookings: [
-        {
-          start: 1628169256,
-          end: 1628169556,
-          room: '5b28e483c9c077034f5987fb',
-        },
-      ],
-    };
-
-    const createEventUpdate = {
-      name: 'TEST-event-update',
-      description: 'TEST-event-description',
-      bookings: [],
-    };
+    before(() => {
+      createEventUpdate = {
+        name: 'TEST-event-update',
+        description: 'TEST-event-description',
+        bookings: [],
+      };
+      createEvent = {
+        name: 'TEST-event',
+        description: 'TEST-event-description',
+        bookings: [
+          {
+            start: 1628169256,
+            end: 1628169556,
+            room: roomId,
+          },
+        ],
+      };
+    });
     
     it('should create a event', () =>
       business.create(createEvent)
@@ -302,37 +335,38 @@ describe('eventBookings test', () => {
 
   describe('event creation -> update to no bookings', () => {
     let createdEventId = '';
+    let createEvent;
+    let createEventUpdate;
 
-    let bookingIds = [];
-
-    const createEvent = {
-      name: 'TEST-event',
-      description: 'TEST-event-description',
-      bookings: [
-        {
-          start: 1628169256,
-          end: 1628169556,
-          room: '5b28e483c9c077034f5987fb',
-        },
-      ],
-    };
-
-    const createEventUpdate = {
-      name: 'TEST-event-update',
-      description: 'TEST-event-description',
-      bookings: [
-        {
-          start: 1628169256,
-          end: 1628169556,
-          room: '5b28e483c9c077034f5987fb',
-        },
-        {
-          start: 1628169252,
-          end: 1628169556,
-          room: '5b28e483c9c077034f5987fb',
-        },
-      ],
-    };
+    before(() => {
+      createEventUpdate = {
+        name: 'TEST-event-update',
+        description: 'TEST-event-description',
+        bookings: [
+          {
+            start: 1628169256,
+            end: 1628169556,
+            room: roomId,
+          },
+          {
+            start: 1628169252,
+            end: 1628169556,
+            room: roomId,
+          },
+        ],
+      };
+      createEvent = {
+        name: 'TEST-event',
+        description: 'TEST-event-description',
+        bookings: [
+          {
+            start: 1628169256,
+            end: 1628169556,
+            room: roomId,
+          },
+        ],
+      };
+    });
 
     it('should create a event', () =>
       business.create(createEvent)
@@ -366,22 +400,21 @@ describe('eventBookings test', () => {
 
   describe('event creation -> twice will fail', () => {
     let createdEventIdFirst = '';
-    let createdEventIdSec = '';
-
-    let bookingIds = [];
-
-    const createEvent = {
-      name: 'TEST-event',
-      description: 'TEST-event-description',
-      bookings: [
-        {
-          start: 1628169256,
-          end: 1628169556,
-          room: '5b28e483c9c077034f5987fb',
-        },
-      ],
-    };
-
+    let createEvent;
+    
+    before(() => {
+      createEvent = {
+        name: 'TEST-event',
+        description: 'TEST-event-description',
+        bookings: [
+          {
+            start: 1628169256,
+            end: 1628169556,
+            room: roomId,
+          },
+        ],
+      };
+    });
 
     it('should create a error', () =>
       business.create(createEvent)
@@ -406,5 +439,6 @@ describe('eventBookings test', () => {
   after(() => {
     Logger.info.restore();
     notificationHandler.sendToDevice.restore();
+    return roomRepository.remove(roomId);
   });
 });

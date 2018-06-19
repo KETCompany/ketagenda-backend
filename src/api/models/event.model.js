@@ -43,7 +43,13 @@ const eventSchema = new Schema({
   timestamps: true,
 });
 
-const Event = mongoose.model('events', eventSchema);
+
+let Event;
+try {
+  Event = mongoose.model('events');
+} catch (e) {
+  Event = mongoose.model('events', eventSchema);
+}
 
 module.exports = {
   Event,

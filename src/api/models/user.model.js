@@ -33,7 +33,13 @@ const userModel = new Schema({
   timestamps: true,
 });
 
-const User = mongoose.model('users', userModel);
+let User;
+try {
+  User = mongoose.model('users');
+} catch (e) {
+  User = mongoose.model('users', userModel);
+}
+
 
 module.exports = {
   User,

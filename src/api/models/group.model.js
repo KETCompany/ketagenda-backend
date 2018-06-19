@@ -16,7 +16,12 @@ const groupSchema = new Schema({
   useNestedStrict: true,
 });
 
-const Group = mongoose.model('groups', groupSchema);
+let Group;
+try {
+  Group = mongoose.model('groups');
+} catch (e) {
+  Group = mongoose.model('groups', groupSchema);
+}
 
 module.exports = {
   Group,

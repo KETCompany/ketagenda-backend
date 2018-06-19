@@ -30,7 +30,13 @@ roomSchema.virtual('bookings', {
 roomSchema.set('toObject', { virtuals: true });
 roomSchema.set('toJSON', { virtuals: true });
 
-const Room = mongoose.model('rooms', roomSchema);
+
+let Room;
+try {
+  Room = mongoose.model('rooms');
+} catch (e) {
+  Room = mongoose.model('rooms', roomSchema);
+}
 
 const getSearchValues = (query) => {
   if (query) {

@@ -4,6 +4,8 @@ const eventRepository = require('../repositories/EventRepository');
 const bookingRepository = require('../repositories/BookingRepository');
 const Logger = require('../utils/logger');
 
+const notificationHandler = require('../utils/notificationHandler');
+
 const listEvents = populate =>
   eventRepository.list(populate);
 
@@ -45,7 +47,7 @@ const create = (eventBody) => {
           });
       }
       return newEvent;
-    });
+    }).then(newEvent => notificationHandler.sendIfGroup('EVENT', 'You have been added to a new event')(newEvent));
 };
 
 const update = (id, eventBody) => {
@@ -72,6 +74,7 @@ const update = (id, eventBody) => {
       }
       return eventRepository.update(id, eventBody);
     })
+    .then(newEvent => notificationHandler.sendIfGroup('EVENT', `${event.name} has been updated`)(newEvent))
     .catch(() => {
       return bookingRepository.remove(id)
         .then(() => oldBooings.map(({ _id, ...booking }) => bookingRepository.create(booking)))
@@ -80,7 +83,7 @@ const update = (id, eventBody) => {
           return eventRepository.update(id, { ...eventBody, bookings: newBookings });
         });
     });
-}
+};
 
 module.exports = {
   listEvents,

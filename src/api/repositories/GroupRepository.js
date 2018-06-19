@@ -8,6 +8,10 @@ const {
 
 const { mongoErrorHandler, notFoundHandler } = require('../utils/errorHandler');
 
+const notificationHandler = require('../utils/notificationHandler');
+
+const getOnlyFmcTokens = arr => arr.filter(i => i.fmcToken !== '').map(i => i.fmcToken);
+
 const list = select =>
   Group.find({})
     .select(select)
@@ -25,6 +29,7 @@ const addUser = (id, userId) =>
 const removeUser = (id, userId) =>
   Group.findByIdAndUpdate(id, { $pull: { users: userId } });
 
+// Create group logic
 const create = (body) => {
   const group = new Group(body);
 
@@ -32,8 +37,11 @@ const create = (body) => {
     .then((savedGroup) => {
       if (savedGroup.users) {
         return Promise.all(savedGroup.users.map(id =>
+          // Save all users.
           User.findByIdAndUpdate(id, { $push: { groups: savedGroup.id } })))
-          .then(users => ({ ...savedGroup.toJSON(), users }));
+          // Subscribe to notification group.
+          .then(users => notificationHandler.subscribe(getOnlyFmcTokens(users), savedGroup.id))
+          .then(() => savedGroup.toJSON());
       }
       return savedGroup;
     })
@@ -50,9 +58,14 @@ const update = (id, body, populate) =>
         const addedUsers = newUsers.filter(group => !oldUsers.includes(group));
 
         return Promise.all([
-          ...removedUsers.map(user => User.findByIdAndUpdate(user, { $pull: { groups: id } })),
-          ...addedUsers.map(user => User.findByIdAndUpdate(user, { $push: { groups: id } })),
-        ]);
+          Promise.all(removedUsers.map(user => User.findByIdAndUpdate(user, { $pull: { groups: id } }))),
+          Promise.all(addedUsers.map(user => User.findByIdAndUpdate(user, { $push: { groups: id } }))),
+        ])
+          .then(([removed, added]) => {
+            notificationHandler.unsubsribe(getOnlyFmcTokens(removed), id);
+            notificationHandler.subscribe(getOnlyFmcTokens(added), id);
+            return true;
+          });
       }
       return true;
     })

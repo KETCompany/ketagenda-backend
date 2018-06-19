@@ -55,13 +55,9 @@ const create = (req, res) => {
   }
 
   return groupRepository.create({ name, description, users: usersV })
-    .then((response) => {
-      const tokens = response.users.filter(user => user.fmcToken !== '').map(user => user.fmcToken);
-
-      return notificationHandler.subscribe(tokens, response._id)
-        .then(() => notificationHandler.sendToGroup(response._id, `Added to ${response.name}`, `Added to ${response.name}`))
-        .then(() => sendResponse(res, response));
-    })
+    .then(response =>
+      notificationHandler.sendToGroup(response._id, `Added to ${response.name}`, `Added to ${response.name}`)
+        .then(() => sendResponse(res, response)))
     .catch(err => sendError(res, err, 500));
 };
 
@@ -74,18 +70,15 @@ const update = (req, res) => {
   let usersV = [];
 
   if (_.isArray(users)) {
-    usersV = users;
+    usersV = users.map(user => (_.isObject(user) ? user._id : user));
   } else if (users) {
     usersV = [users];
   }
 
   return groupRepository.update(id, { name, description, users: usersV }, true)
-    .then((response) => {
-      const tokens = response.users.filter(user => user.fmcToken !== '').map(user => user.fmcToken);
-      notificationHandler.subscribe(tokens, id)
-        .then(() => notificationHandler.sendToGroup(id, `${response.name} has been updated!`, `${response.name} has been updated!`))
-        .then(() => sendResponse(res, response));
-    })
+    .then(response =>
+      notificationHandler.sendToGroup(id, `${response.name} has been updated!`, `${response.name} has been updated!`)
+        .then(() => sendResponse(res, response)))
     .catch(err => sendError(res, err, 500));
 };
 

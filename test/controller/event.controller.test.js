@@ -300,6 +300,9 @@ describe('event.controller tests', () => {
 
   after(() => {
     responseHandler.sendResponse.restore();
+    responseHandler.sendError.restore();
+    responseHandler.sendErrorMessage.restore();
+    responseHandler.sendValidationError.restore();
     Logger.info.restore();
   });
 });

@@ -3,7 +3,7 @@ const groupRepository = require('../repositories/GroupRepository');
 const EventRepository = require('../repositories/EventRepository');
 // const groupBuisness = require('../business/group.business');
 
-const { sendResponse, sendErrorMessage, sendError } = require('../utils/responseHandler');
+const responseHandler = require('../utils/responseHandler');
 const notificationHandler = require('../utils/notificationHandler');
 
 const userBuisness = require('../business/user.business');
@@ -17,8 +17,8 @@ const list = (req, res) => {
   }
 
   return groupRepository.list(select)
-    .then(groups => sendResponse(res, groups))
-    .catch(err => sendError(res, err, 500));
+    .then(groups => responseHandler.sendResponse(res, groups))
+    .catch(err => responseHandler.sendError(res, err, 500));
 };
 
 const get = (req, res) => {
@@ -37,14 +37,18 @@ const get = (req, res) => {
       }
       return group;
     })
-    .then(group => sendResponse(res, group))
-    .catch(err => sendErrorMessage(res, err, 'Cannot find group', `Group with id: ${id} not found.`, 404));
+    .then(group => responseHandler.sendResponse(res, group))
+    .catch(err => responseHandler.sendErrorMessage(res, err, 'Cannot find group', `Group with id: ${id} not found.`, 404));
 };
 
 const create = (req, res) => {
   const { body } = req;
 
   const { name, description, users } = _.pick(body, 'name', 'description', 'users');
+
+  if (!name) {
+    return responseHandler.sendValidationError(res, 'name', 'Name is required');
+  }
 
   let usersV = [];
 
@@ -57,8 +61,8 @@ const create = (req, res) => {
   return groupRepository.create({ name, description, users: usersV })
     .then(response =>
       notificationHandler.sendToGroup(response._id, `Added to ${response.name}`, `Added to ${response.name}`)
-        .then(() => sendResponse(res, response)))
-    .catch(err => sendError(res, err, 500));
+        .then(() => responseHandler.sendResponse(res, response)))
+    .catch(err => responseHandler.sendError(res, err, 500));
 };
 
 const update = (req, res) => {
@@ -78,8 +82,8 @@ const update = (req, res) => {
   return groupRepository.update(id, { name, description, users: usersV }, true)
     .then(response =>
       notificationHandler.sendToGroup(id, `${response.name} has been updated!`, `${response.name} has been updated!`)
-        .then(() => sendResponse(res, response)))
-    .catch(err => sendError(res, err, 500));
+        .then(() => responseHandler.sendResponse(res, response)))
+    .catch(err => responseHandler.sendError(res, err, 500));
 };
 
 const remove = (req, res) => {
@@ -88,9 +92,9 @@ const remove = (req, res) => {
   return groupRepository.remove(id)
     .then((response) => {
       return notificationHandler.sendToGroup(id, `${response.name} has been deleted!`, `${response.name} has been deleted!`, 'warning')
-        .then(() => sendResponse(res, { removed: true }));
+        .then(() => responseHandler.sendResponse(res, { removed: true }));
     })
-    .catch(err => sendError(res, err, 500));
+    .catch(err => responseHandler.sendError(res, err, 500));
 };
 
 const subscribe = (req, res) => {
@@ -99,8 +103,8 @@ const subscribe = (req, res) => {
   const { id } = _.pick(body, 'id');
 
   return userBuisness.joinGroup(req.user._id, id)
-    .then(() => sendResponse(res, { joined: true }))
-    .catch(err => sendError(res, err, 500));
+    .then(() => responseHandler.sendResponse(res, { joined: true }))
+    .catch(err => responseHandler.sendError(res, err, 500));
 };
 
 const unSubscribe = (req, res) => {
@@ -109,8 +113,8 @@ const unSubscribe = (req, res) => {
   const { id } = _.pick(body, 'id');
 
   return userBuisness.exitGroup(req.user._id, id)
-    .then(() => sendResponse(res, { exited: true }))
-    .catch(err => sendError(res, err, 500));
+    .then(() => responseHandler.sendResponse(res, { exited: true }))
+    .catch(err => responseHandler.sendError(res, err, 500));
 };
 
 module.exports = {

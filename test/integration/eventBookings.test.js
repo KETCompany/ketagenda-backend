@@ -63,12 +63,10 @@ describe('eventBookings test', () => {
           return assert(event.description === createEvent.description);
         }));
 
-    it('should remove the event', () => {
-      return eventRepository.remove(createdEventId)
+    it('should remove the event', () => eventRepository.remove(createdEventId)
         .then((removed) => {
           return assert(removed);
-        });
-    });
+        }));
   });
 
   describe('event creation with bookings', () => {
@@ -100,25 +98,19 @@ describe('eventBookings test', () => {
           return assert(event.bookings.length === 1);
         }).catch(err => console.log(err)));
 
-    it('should give a error because has bookings the event', () => {
-      return eventRepository.remove(createdEventId)
+    it('should give a error because has bookings the event', () => eventRepository.remove(createdEventId)
         .catch((err) => { 
           return assert(err);
-        });
-    });
+        }));
 
-    it('should remove the bookings', () => {
-      bookingRepository.remove(createdEventId)
+    it('should remove the bookings', () => bookingRepository.remove(createdEventId)
         .then((res) => {
           return assert(res);
-        });
-    });
+        }));
 
-    it('should not throw a error', () => {
-      return eventRepository.remove(createdEventId)
+    it('should not throw a error', () => eventRepository.remove(createdEventId)
         .then(suc =>
-          assert(suc));
-    });
+          assert(suc)));
   });
 
   describe('event creation -> update', () => {
@@ -155,11 +147,9 @@ describe('eventBookings test', () => {
         }));
 
 
-    it('should not throw a error', () => {
-      return eventRepository.remove(createdEventId)
+    it('should not throw a error', () => eventRepository.remove(createdEventId)
         .then(suc =>
-          assert(suc));
-    });
+          assert(suc)));
   });
 
   describe('event creation -> update more bookings', () => {
@@ -211,18 +201,14 @@ describe('eventBookings test', () => {
           return assert(updatedEvent.description === createEventUpdate.description);
         }));
 
-    it('should remove the bookings', () => {
-      return bookingRepository.remove(createdEventId)
+    it('should remove the bookings', () => bookingRepository.remove(createdEventId)
         .then((res) => {
           return assert(res.n === 1);
-        });
-    });
+        }));
 
-    it('should not throw a error', () => {
-      return eventRepository.remove(createdEventId)
+    it('should not throw a error', () => eventRepository.remove(createdEventId)
         .then(suc =>
-          assert(suc));
-    });
+          assert(suc)));
   });
 
   describe('event creation -> update if no bookings', () => {
@@ -265,18 +251,14 @@ describe('eventBookings test', () => {
           return assert(updatedEvent.description === createEventUpdate.description);
         }));
 
-    it('should remove the bookings', () => {
-      return bookingRepository.remove(createdEventId)
+    it('should remove the bookings', () => bookingRepository.remove(createdEventId)
         .then((res) => {
           return assert(res.n === 1);
-        });
-    });
+        }));
 
-    it('should not throw a error', () => {
-      return eventRepository.remove(createdEventId)
+    it('should not throw a error', () => eventRepository.remove(createdEventId)
         .then(suc =>
-          assert(suc));
-    });
+          assert(suc)));
   });
 
   describe('event creation -> update to no bookings', () => {
@@ -302,7 +284,7 @@ describe('eventBookings test', () => {
         ],
       };
     });
-    
+
     it('should create a event', () =>
       business.create(createEvent)
         .then((event) => {
@@ -320,17 +302,13 @@ describe('eventBookings test', () => {
           return assert(updatedEvent.description === createEventUpdate.description);
         }));
 
-    it('should be no bookings for this event', () => {
-      bookingRepository.getByEventId(createdEventId)
-        .then(res =>
-          assert(res.length === 0));
-    });
+    it('should be no bookings for this event', () => bookingRepository.getByEventId(createdEventId)
+      .then(res =>
+        assert(res.length === 0)));
 
-    it('should not throw a error', () => {
-      return eventRepository.remove(createdEventId)
-        .then(suc =>
-          assert(suc));
-    });
+    it('should not throw a error', () => eventRepository.remove(createdEventId)
+      .then(suc =>
+        assert(suc)));
   });
 
   describe('event creation -> update to no bookings', () => {
@@ -384,16 +362,10 @@ describe('eventBookings test', () => {
           return assert(updatedEvent.description === createEventUpdate.description, 'description should be updated');
         }));
 
-    it('should remove the bookings', () =>
-      bookingRepository.remove(createdEventId)
-        .then((res) => {
-          return assert(res);
-        }));
 
-    it('should not throw a error', () => {
-      return eventRepository.remove(createdEventId)
-        .then(suc =>
-          assert(suc))
+    after(() => {
+      return bookingRepository.remove(createdEventId)
+        .then(() => eventRepository.remove(createdEventId));
     });
   });
 
@@ -401,7 +373,7 @@ describe('eventBookings test', () => {
   describe('event creation -> twice will fail', () => {
     let createdEventIdFirst = '';
     let createEvent;
-    
+
     before(() => {
       createEvent = {
         name: 'TEST-event',
@@ -423,16 +395,9 @@ describe('eventBookings test', () => {
           return business.create(createEvent);
         }).catch(err => assert(err)));
 
-    it('should remove the bookings', () =>
-      bookingRepository.remove(createdEventIdFirst)
-        .then((res) => {
-          return assert(res);
-        }));
-
-    it('should not throw a error', () => {
-      return eventRepository.remove(createdEventIdFirst)
-        .then(suc =>
-          assert(suc));
+    after(() => {
+      return bookingRepository.remove(createdEventIdFirst)
+        .then((res) => eventRepository.remove(createdEventIdFirst));
     });
   });
 

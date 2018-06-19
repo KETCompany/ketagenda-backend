@@ -8,7 +8,7 @@ module.exports = ((app, passport) => {
     res.json({ hello: 'world' });
   });
   app.use('/auth', authRouter);
-  
+
   app.get('/api/infoscreen', roomController.getByInfoScreen);
   app.put('/api/infoscreen/:id', roomController.update);
 

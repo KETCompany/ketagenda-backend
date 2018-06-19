@@ -38,7 +38,7 @@
   "scripts": {
     "test": "mocha test/**/*.test.js --watch",
     "test:coverage": "istanbul cover node_modules/mocha/bin/_mocha -- test/**/*.test.js --watch",
-    "start": "nodemon server.js",
+    "start": "node server.js",
     "debug": "nodemon --inspect --debug server.js"
   },
   "keywords": [],

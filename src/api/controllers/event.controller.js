@@ -36,10 +36,23 @@ const get = (req, res) => {
 const create = (req, res) => {
   const { body } = req;
 
-  const event = _.pick(body, 'name', 'description', 'owner', 'groups', 'subscribers', 'bookings');
+  const event = _.pick(body, 'name', 'description', 'owner', 'groups', 'subscribers', 'bookings', 'room');
 
   if (!event.name) {
     return responseHandler.sendValidationError(res, 'name', 'Name is required');
+  }
+
+  if (event.bookings.length > 0 && !event.bookings.every(booking => booking.room !== '')) {
+    if (!event.room || event.room === '') {
+      return responseHandler.sendValidationError(res, 'Room', 'Room is required');
+    }
+    event.bookings = event.bookings.map(b => ({ ...b, room: event.room }));
+  }
+
+  delete event.room;
+
+  if (!event.owner) {
+    event.owner = req.user._id;
   }
 
   return eventBusiness.create(event)

@@ -106,7 +106,7 @@ const update = (req, res) => {
   const { id } = req.params;
   const { body } = req;
 
-  const room = _.pick(body, 'department', 'floor', 'type', 'description', 'name', 'location', 'number');
+  const room = _.pick(body, 'department', 'floor', 'type', 'description', 'name', 'location', 'number', 'displayKeys');
 
   return roomRepository.update(id, room)
     .then(updatedRoom => sendResponse(res, updatedRoom))

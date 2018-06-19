@@ -6,10 +6,23 @@ const subscribe = (tokens, topic) => {
   if (tokens.length > 0) {
     return messaging().subscribeToTopic(tokens, `/topics/${topic}`)
       .then((response) => {
-        Logger.info('Successfully subscribed to topic:', response);
+        Logger.info(`Successfully subscribed to topic: ${response}`);
       })
       .catch((error) => {
-        Logger.error('Error subscribing to topic:', error);
+        Logger.error(`Error subscribing to topic: ${error}`);
+      });
+  }
+  return Promise.resolve();
+};
+
+const unsubsribe = (tokens, topic) => {
+  if (tokens.length > 0) {
+    return messaging().unsubscribeFromTopic(tokens, `/topics/${topic}`)
+      .then((response) => {
+        Logger.info(`Successfully unsubscribed from topic: ${response}`);
+      })
+      .catch((error) => {
+        Logger.error(`Error unsubscribing to topic: ${error}`);
       });
   }
   return Promise.resolve();
@@ -46,12 +59,22 @@ const sendToGroup = (topic, title, body, variant = 'info') => {
     },
     topic: `/topics/${topic}`,
   };
-
   return send(message);
+};
+
+const sendIfGroup = (type, title) => (data) => {
+  if (data && data.groups) {
+    return Promise.all([
+      ...data.groups.map(group => sendToGroup(group, `${type} -- ${title}`, title)),
+    ]).then(() => data);
+  }
+  return data;
 };
 
 module.exports = {
   sendToDevice,
   sendToGroup,
   subscribe,
+  unsubsribe,
+  sendIfGroup,
 };

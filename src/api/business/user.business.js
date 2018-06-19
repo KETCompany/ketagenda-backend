@@ -51,6 +51,17 @@ const update = (id, user) =>
       return newUser;
     });
 
+const joinGroup = (id, groupId) =>
+  userRepository.addGroup(id, groupId)
+    .then(() => groupRepository.addUser(groupId, id))
+    .then(() => true);
+
+const exitGroup = (id, groupId) =>
+  userRepository.removeGroup(id, groupId)
+    .then(() => groupRepository.removeUser(groupId, id))
+    .then(() => true);
+
+
 const remove = id =>
   userRepository.getById(id)
     .then((user) => {
@@ -66,4 +77,6 @@ module.exports = {
   create,
   update,
   remove,
+  joinGroup,
+  exitGroup,
 };

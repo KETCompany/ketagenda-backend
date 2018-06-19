@@ -52,7 +52,7 @@ describe('userGroup tests', () => {
           assert(user.name === createUserObject.name);
           assert(user.email === createUserObject.email);
           assert(user.role === createUserObject.role);
-          assert(user.short === createUserObject.short);
+          return assert(user.short === createUserObject.short);
         }));
 
     it('should update the user', () => {
@@ -61,14 +61,14 @@ describe('userGroup tests', () => {
           assert(user.name === updateUserObject.name);
           assert(user.email === updateUserObject.email);
           assert(user.role === updateUserObject.role);
-          assert(user.short === updateUserObject.short);
+          return assert(user.short === updateUserObject.short);
         });
     });
 
     it('should remove the user', () => {
       return business.remove(createdUserId)
         .then((removed) => {
-          assert(removed);
+          return assert(removed);
         });
     });
   });
@@ -208,7 +208,7 @@ describe('userGroup tests', () => {
     it('should remove the user', () => {
       return business.remove(createdUserId)
         .then((removed) => {
-          assert(removed)
+          return assert(removed)
         })
     })
   });
@@ -281,7 +281,7 @@ describe('userGroup tests', () => {
     it('should remove the user', () => {
       return business.remove(createdUserId)
         .then((removed) => {
-          assert(removed)
+          return assert(removed)
         })
     })
   });
@@ -363,6 +363,7 @@ describe('userGroup tests', () => {
       return business.create(createUserObject)
         .then((user) => {
           createdUserId = user._id;
+          return true;
         });
     })
 
@@ -384,7 +385,7 @@ describe('userGroup tests', () => {
     it('should remove the group', () => {
       return groupRepository.remove(createGroupId)
         .then((removed) => {
-          return assert(removed)
+          return assert(removed);
         })
     });
 
@@ -397,10 +398,79 @@ describe('userGroup tests', () => {
       return business.remove(createdUserId)
         .then(removed => assert(removed));
     });
-
   });
 
 
+  describe('Group add user on creation', () => {
+    let createGroupId = '';
+    let createdUserId = '';
+
+    const createUserObject = {
+      name: 'test-Daan',
+      email: 'test-Daan_donn@hotmail.com',
+      role: 'Student',
+      short: 'test-d',
+    };
+
+    const createGroupObject = {
+      name: 'test-Group',
+      description: 'test-group-description',
+    };
+
+    it('should create a user', () => {
+      return business.create(createUserObject)
+        .then((user) => {
+          createdUserId = user._id;
+          return true;
+        });
+    })
+
+    it('should create a group and have a user in it.', () => {
+      return groupRepository.create(createGroupObject)
+        .then((group) => {
+          createGroupId = group._id;
+          return true;
+        });
+    });
+
+    it('user shoud join the group', () => {
+      return business.joinGroup(createdUserId, createGroupId)
+        .then(() => {
+          return Promise.all([
+            groupRepository.getById(createGroupId),
+            business.get(createdUserId),
+          ]).then(([gr, usr]) => {
+            assert(gr.users.length === 1, 'group users length === 1');
+            return assert(usr.groups.length === 1, 'user groups length === 1');
+          });
+        });
+    });
+
+    it('user shoud join the group', () => {
+      return business.exitGroup(createdUserId, createGroupId)
+        .then(() => {
+          return Promise.all([
+            groupRepository.getById(createGroupId),
+            business.get(createdUserId),
+          ]).then(([gr, usr]) => {
+            assert(gr.users.length === 0, 'group users length === 1');
+            return assert(usr.groups.length === 0, 'user groups length === 1');
+          });
+        });
+    });
+
+    it('should remove the group', () => {
+      return groupRepository.remove(createGroupId)
+        .then((removed) => {
+          return assert(removed)
+        });
+    });
+
+    it('should delete a user', () => {
+      return business.remove(createdUserId)
+        .then(removed => assert(removed));
+    });
+  });
 
   after(() => {
     Logger.info.restore();

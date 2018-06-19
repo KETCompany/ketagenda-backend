@@ -6,6 +6,8 @@ const EventRepository = require('../repositories/EventRepository');
 const { sendResponse, sendErrorMessage, sendError } = require('../utils/responseHandler');
 const notificationHandler = require('../utils/notificationHandler');
 
+const userBuisness = require('../business/user.business');
+
 const list = (req, res) => {
   const { query } = req;
 
@@ -102,7 +104,21 @@ const subscribe = (req, res) => {
   const { body } = req;
 
   const { id } = _.pick(body, 'id');
-}
+
+  return userBuisness.joinGroup(req.user._id, id)
+    .then(() => sendResponse(res, { joined: true }))
+    .catch(err => sendError(res, err, 500));
+};
+
+const unSubscribe = (req, res) => {
+  const { body } = req;
+
+  const { id } = _.pick(body, 'id');
+
+  return userBuisness.exitGroup(req.user._id, id)
+    .then(() => sendResponse(res, { exited: true }))
+    .catch(err => sendError(res, err, 500));
+};
 
 module.exports = {
   list,
@@ -111,4 +127,5 @@ module.exports = {
   update,
   remove,
   subscribe,
+  unSubscribe,
 };

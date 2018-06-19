@@ -7,8 +7,6 @@ router.get('/', controller.list);
 
 router.post('/', controller.post);
 
-router.get('/infoscreen', controller.getByInfoScreen);
-
 router.get('/:id', controller.get);
 
 router.put('/:id', controller.update);

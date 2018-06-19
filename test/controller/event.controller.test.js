@@ -6,7 +6,7 @@ const eventRepository = require('../../src/api/repositories/EventRepository');
 const eventBusiness = require('../../src/api/business/event.business');
 
 const responseHandler = require('../../src/api/utils/responseHandler');
-const Logger = require('../../src/api/utils/logger')
+const Logger = require('../../src/api/utils/logger');
 
 describe('event.controller tests', () => {
   before(() => {
@@ -156,12 +156,22 @@ describe('event.controller tests', () => {
       sinon
         .stub(eventRepository, 'create')
         .callsFake(({ name }) => {
-          if(name === 'error') {
+          if (name === 'error') {
             return Promise.reject('err');
           }
 
           return Promise.resolve();
-        })
+        });
+
+      sinon
+        .stub(eventBusiness, 'create')
+        .callsFake(({ name }) => {
+          if (name === 'error') {
+            return Promise.reject('err');
+          }
+
+          return Promise.resolve();
+        });
     });
 
     describe('with everything', () => {
@@ -173,8 +183,8 @@ describe('event.controller tests', () => {
           groups: 'something',
           subscribers: 'something',
           bookings: 'something',
-        }
-      }
+        },
+      };
 
       it('should not give a error', () => {
         return controller.create(req, null)
@@ -224,7 +234,8 @@ describe('event.controller tests', () => {
 
     after(() => {
       eventRepository.create.restore();
-    })
+      eventBusiness.create.restore();
+    });
   });
 
 // // // // // // //
@@ -234,7 +245,7 @@ describe('event.controller tests', () => {
   describe('Update test', () => {
     before(() => {
       sinon
-        .stub(eventRepository, 'update')
+        .stub(eventBusiness, 'update')
         .callsFake((id, { name }) => {
           if(name === 'error') {
             return Promise.reject('err');
@@ -283,7 +294,7 @@ describe('event.controller tests', () => {
     });
 
     after(() => {
-      eventRepository.update.restore();
+      eventBusiness.update.restore();
     })
   });
 

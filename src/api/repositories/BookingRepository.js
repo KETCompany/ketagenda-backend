@@ -58,6 +58,9 @@ const create = (body) => {
   return booking.save();
 };
 
+const remove = id =>
+  Booking.remove({ event: id });
+
 
 module.exports = {
   list,
@@ -66,4 +69,5 @@ module.exports = {
   getByEventId,
   getByRoomId,
   listNow,
+  remove,
 };

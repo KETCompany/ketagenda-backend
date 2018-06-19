@@ -19,7 +19,6 @@ const list = (req, res) => {
     promise = eventBusiness.listEvents(populate !== undefined);
   }
 
-
   return promise
     .then(response => responseHandler.sendResponse(res, response) && Logger.info(`Event count: ${response.length}`))
     .catch(err => responseHandler.sendError(res, err));
@@ -43,7 +42,7 @@ const create = (req, res) => {
     return responseHandler.sendValidationError(res, 'name', 'Name is required');
   }
 
-  return eventRepository.create(event)
+  return eventBusiness.create(event)
     .then(savedEvent => responseHandler.sendResponse(res, savedEvent))
     .catch(err => responseHandler.sendError(res, err, 400));
 };
@@ -54,7 +53,7 @@ const update = (req, res) => {
 
   const event = _.pick(body, 'name', 'description');
 
-  return eventRepository.update(id, event)
+  return eventBusiness.update(id, event)
     .then(updatedEvent => responseHandler.sendResponse(res, updatedEvent))
     .catch(err => responseHandler.sendError(res, err, 400));
 };

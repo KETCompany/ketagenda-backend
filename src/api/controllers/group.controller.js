@@ -29,7 +29,6 @@ const get = (req, res) => {
         return EventRepository.getByGroupId(group.id, populate !== undefined)
           .then((events) => {
             const groupWithEvents = group.toJSON();
-
             groupWithEvents.events = events;
             return groupWithEvents;
           });

@@ -10,7 +10,7 @@ const sendError = (res, error, status) => {
   Logger.error(error);
 
   res.status(status || 500);
-  res.send({
+  return res.send({
     title: error.message,
     description: error.stack,
   });
@@ -36,6 +36,9 @@ const sendValidationError = (res, field, message, status) => {
     description: message,
   });
 };
+
+
+module.exports.sendResponse = sendResponse;
 
 module.exports = {
   sendResponse, sendError, sendErrorMessage, sendValidationError,

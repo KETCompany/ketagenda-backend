@@ -24,16 +24,19 @@
     "passport": "^0.4.0",
     "passport-google-oauth20": "^1.0.0",
     "passport-jwt": "^4.0.0",
+    "sinon": "^6.0.0",
     "socket.io": "^2.1.0",
     "websocket": "^1.0.26",
     "winston": "^3.0.0-rc6"
   },
   "devDependencies": {
     "chai": "^4.1.2",
-    "eslint": "^4.19.1"
+    "eslint": "^4.19.1",
+    "istanbul": "^1.0.0-alpha.2"
   },
   "scripts": {
-    "test": "mocha",
+    "test": "mocha test/**/*.test.js --watch",
+    "test:coverage": "istanbul cover node_modules/mocha/bin/_mocha -- test/**/*.test.js --watch",
     "start": "nodemon server.js",
     "debug": "nodemon --inspect --debug server.js"
   },

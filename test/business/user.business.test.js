@@ -5,7 +5,7 @@ const business = require('../../src/api/business/user.business');
 const userRepository = require('../../src/api/repositories/UserRepository');
 const groupRepository = require('../../src/api/repositories/GroupRepository');
 const notificationHandler = require('../../src/api/utils/notificationHandler');
-const Logger = require('../../src/api/utils/Logger');
+const Logger = require('../../src/api/utils/logger');
 
 describe('user.business tests', () => {
   before(() => {

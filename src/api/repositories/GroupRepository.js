@@ -41,9 +41,23 @@ const create = (body) => {
 };
 
 const update = (id, body, populate) =>
-  Group.findByIdAndUpdate(id, body, { new: true })
-    .populate(populate ? 'users' : '')
-    .lean()
+  Group.findByIdAndUpdate(id, body)
+    .then((oldGroup) => {
+      if (body.users) {
+        const newUsers = body.users.map(a => a.toString());
+        const oldUsers = oldGroup.users.map(a => a.toString());
+        const removedUsers = oldUsers.filter(group => !newUsers.includes(group));
+        const addedUsers = newUsers.filter(group => !oldUsers.includes(group));
+
+        return Promise.all([
+          ...removedUsers.map(user => User.findByIdAndUpdate(user, { $pull: { groups: id } })),
+          ...addedUsers.map(user => User.findByIdAndUpdate(user, { $push: { groups: id } })),
+        ]);
+      }
+      return true;
+    })
+    .then(() => Group.findById(id).populate(populate ? 'users' : '')
+      .lean())
     .then(notFoundHandler(id, 'Group'))
     .catch(mongoErrorHandler);
 

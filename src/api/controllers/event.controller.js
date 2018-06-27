@@ -1,6 +1,7 @@
 const _ = require('lodash');
 const eventBusiness = require('../business/event.business');
 const eventRepository = require('../repositories/EventRepository');
+const roomBusiness = require('../business/room.business');
 
 const responseHandler = require('../utils/responseHandler');
 const Logger = require('../utils/logger');
@@ -56,7 +57,10 @@ const create = (req, res) => {
   }
 
   return eventBusiness.create(event)
-    .then(savedEvent => responseHandler.sendResponse(res, savedEvent))
+    .then(savedEvent => {
+      roomBusiness.updateInfoScreens(_.first(event.bookings));
+      responseHandler.sendResponse(res, savedEvent);
+    })
     .catch(err => responseHandler.sendError(res, err, 400));
 };
 

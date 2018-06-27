@@ -7,6 +7,7 @@ const bookingRepository = require('../repositories/BookingRepository');
 const { removeDuplicates, removeRoomNames } = require('../utils/filter');
 const { startEndDate } = require('../utils/date');
 const roomRepository = require('../repositories/RoomRepository');
+const socket = require('../../config/socket');
 
 const getFilters = searchValues =>
   roomRepository
@@ -24,6 +25,10 @@ const getNames = searchValues =>
 
 const getClasses = searchValues =>
   roomRepository.groups(mongoQueryBuilder(searchValues));
+
+const updateInfoScreens = booking => 
+  roomRepository.getById(booking.room)
+    .then((Room) => socket.sendMessage(Room.displayKeys, JSON.stringify({ bookings: Room.bookings })));
 
 const list = (query, searchValues) => {
   const mongoQuery = mongoQueryBuilder(searchValues);
@@ -53,7 +58,7 @@ module.exports = {
   getFilters,
   list,
   getNames,
-  // createReservation,
+  updateInfoScreens,
   getClasses,
   listRoomBookings,
 };

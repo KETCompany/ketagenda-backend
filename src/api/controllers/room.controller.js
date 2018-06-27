@@ -3,7 +3,6 @@ const _ = require('lodash');
 const { getSearchValues } = require('../models/room.model');
 const roomRepository = require('../repositories/RoomRepository');
 const RoomBusiness = require('../business/room.business');
-const socket = require('../../config/socket');
 
 const { sendResponse, sendError, sendErrorMessage } = require('../utils/responseHandler');
 const Logger = require('../utils/logger');
@@ -80,7 +79,6 @@ const getByInfoScreen = (req, res) => {
     });
 };
 
-
 // TODO
 const post = (req, res) => {
   const { body } = req;
@@ -90,16 +88,6 @@ const post = (req, res) => {
   return roomRepository.create(room)
     .then(savedRoom => sendResponse(res, savedRoom))
     .catch(err => sendError(res, err));
-
-  // RoomBusiness.createReservation(req.body)
-  //   .then((room) => {
-  //     socket.sendMessage(room.displayKeys, JSON.stringify({ bookings: room.bookings }));
-  //   })
-  //   .catch((err) => {
-  //     // TODO: LOGGER
-  //     console.error(err);
-  //   });
-  // res.sendStatus(202);
 };
 
 const update = (req, res) => {

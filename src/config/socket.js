@@ -29,12 +29,18 @@ const init = (app) => {
   });
 };
 
-const sendMessage = (socketKeys, reservation) =>
+const sendMessage = (socketKeys, bookings) => {
   socketKeys
     .forEach(socketKey =>
       clients.filter(client => client.key === socketKey)
-        .forEach(client =>
-          client.socket.send(reservation)));
+        .forEach(client => {
+          if (client.socket.readyState != WebSocket.OPEN) {
+            console.error('Socket not opened. Expected state is OPEN but current state is set to ' + client.socket.readyState.toString());
+          } else {
+            client.socket.send(bookings)
+          }
+        }));
+      }
 
 module.exports = {
   init,
